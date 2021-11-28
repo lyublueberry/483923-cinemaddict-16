@@ -6,6 +6,8 @@ import { createProfileRatingTemplate } from './view/profile-rating-view.js';
 import { createBtnShowMoreTemplate } from './view/btn-show-more.js';
 import { createContainerCardsFilmsTemplate } from './view/container-card-view.js';
 import { createFilmDetailsPopupTemplates } from './view/film-details-popup-view.js';
+import { createSortTemplate } from './view/sort-view.js';
+
 
 const headerMainElement = document.querySelector('.header');
 const headerLogoMainElement = headerMainElement.querySelector('.header__logo.logo');
@@ -14,10 +16,13 @@ const FILM_CARD_COUNT = 5;
 const footerMainElement = document.querySelector('.footer');
 const footerStatisticsElement = footerMainElement.querySelector('.footer__statistics');
 
-renderTemplate(siteMainElement, createSiteMenuTemplate(), RenderPosition.AFTERBEGIN);//меню и сортировка
+renderTemplate(siteMainElement, createSiteMenuTemplate(), RenderPosition.AFTERBEGIN);//меню
+
+const sortMainTemplateElement = siteMainElement.querySelector('.main-navigation');
+renderTemplate(sortMainTemplateElement, createSortTemplate(), RenderPosition.AFTEREND);//сортировка
+
 renderTemplate(headerLogoMainElement, createProfileRatingTemplate(), RenderPosition.BEFOREEND);//звание пользователя
 renderTemplate(siteMainElement, createContainerCardsFilmsTemplate(), RenderPosition.BEFOREEND);//контейнер куда поместим карточки фильмов
-
 
 const filmsElement = siteMainElement.querySelector('.films');
 const filmsListContainerElement = filmsElement.querySelector('.films-list__container');
