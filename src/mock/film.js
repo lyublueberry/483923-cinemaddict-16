@@ -20,7 +20,7 @@ const COUNTRY = ['Russia', 'USA', 'Spain'];
 export const generateCardFilm = () => ({
   poster: generateRandomElement(POSTER_PICTURES_FILM),
   filmName: generateRandomElement(NAME_FILM),
-  rating: `${getRandomInteger(1, 10)}.${getRandomInteger(1, 10)}`,
+  rating: `${getRandomInteger(1, 9)}.${getRandomInteger(0, 9)}`,
   duration: `${getRandomInteger(0, 5)} h, ${getRandomInteger(0, 59)} m`, //« 1 h 36 m»
   genre: generateRandomElement(GENRE_FILM),
   genres: randomArrayValues(GENRE_FILM),
@@ -36,7 +36,7 @@ export const generateCardFilm = () => ({
   isWatchlist: generateRandomBoolean(),
   isWatched: generateRandomBoolean(),
   isFavorites: generateRandomBoolean(),
-  comments: new Array(getRandomInteger(1, 20)).fill('').map(generateCommentFilm)
+  comments: new Array(getRandomInteger(1, 5)).fill('').map(generateCommentFilm)
 });
 
 export {POSTER_PICTURES_FILM, NAME_FILM, GENRE_FILM, DESCRIPTION_FILM_SHORT};
