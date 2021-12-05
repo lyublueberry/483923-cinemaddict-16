@@ -1,7 +1,9 @@
 import {
-  dateRelisePopup,
-  dateComment
+  dateFilm
 } from '../util';
+
+const dateFormatComment = 'YYYY/MM/DD HH:mm';
+const dateFormatRelise = 'DD MMMM YYYY';
 
 export const commentFilm = ({text, emotion, author, date}) => (
   `<li class="film-details__comment">
@@ -12,7 +14,7 @@ export const commentFilm = ({text, emotion, author, date}) => (
               <p class="film-details__comment-text">${text}</p>
               <p class="film-details__comment-info">
                 <span class="film-details__comment-author">${author}</span>
-                <span class="film-details__comment-day">${dateComment(date)}</span>
+                <span class="film-details__comment-day">${dateFilm(date, dateFormatComment)}</span>
                 <button class="film-details__comment-delete">Delete</button>
               </p>
             </div>
@@ -88,7 +90,7 @@ export const createFilmDetailsPopupTemplates = (films) => {
             </tr>
             <tr class="film-details__row">
               <td class="film-details__term">Release Date</td>
-              <td class="film-details__cell">${dateRelisePopup(date)}</td>
+              <td class="film-details__cell">${dateFilm(date, dateFormatRelise)}</td>
             </tr>
             <tr class="film-details__row">
               <td class="film-details__term">Runtime</td>

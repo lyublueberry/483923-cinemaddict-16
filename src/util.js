@@ -32,9 +32,8 @@ export const randomArrayValues = function (arrayElements){
   return arrayElements;
 };
 
-export const dateRelisePopup = (dueDate) => dayjs(dueDate).format('DD MMMM YYYY'); //Дата и год (например: «01 April 1995»);
-export const dateReliseFilm = (dueDate) => dayjs(dueDate).format('YYYY'); //
-export const dateComment = (dueDate) => dayjs(dueDate).format('YYYY/MM/DD HH:mm'); //«2019/12/31 23:59»
+export const dateFilm = (dueDate, dateFormat) => dayjs(dueDate).format(dateFormat);
+
 const generateRandomBoolean = () => Boolean(getRandomInteger(0, 1));
 
 export {

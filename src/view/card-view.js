@@ -1,4 +1,4 @@
-import { dateReliseFilm } from '../util';
+import { dateFilm } from '../util';
 
 export const createCardFilmTemplate = (films) => {
   const {
@@ -18,13 +18,14 @@ export const createCardFilmTemplate = (films) => {
   const addWatchlistClassName = isWatchlist ? 'film-card__controls-item--active' : '';
   const markWatchedClassName = isWatched ? 'film-card__controls-item--active' : '';
   const markFavorite = isFavorites ? 'film-card__controls-item--active' : '';
+  const dateFormatRelise = 'YYYY';
 
   return `<article class="film-card">
         <a class="film-card__link">
           <h3 class="film-card__title">${filmName}</h3>
           <p class="film-card__rating">${rating}</p>
           <p class="film-card__info">
-            <span class="film-card__year">${dateReliseFilm(date)}</span>
+            <span class="film-card__year">${dateFilm(date, dateFormatRelise)}</span>
             <span class="film-card__duration">${duration}</span>
             <span class="film-card__genre">${genre}</span>
           </p>

@@ -36,7 +36,7 @@ export const generateCardFilm = () => ({
   isWatchlist: generateRandomBoolean(),
   isWatched: generateRandomBoolean(),
   isFavorites: generateRandomBoolean(),
-  comments: new Array(getRandomInteger(1, 5)).fill('').map(generateCommentFilm)
+  comments: Array.from({length:getRandomInteger(1, 5)}, generateCommentFilm)
 });
 
 export {POSTER_PICTURES_FILM, NAME_FILM, GENRE_FILM, DESCRIPTION_FILM_SHORT};
