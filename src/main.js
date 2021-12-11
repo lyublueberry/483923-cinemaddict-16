@@ -1,12 +1,12 @@
-import { createFilterTemplate } from './view/site-menu-view.js';
-import { RenderPosition, renderTemplate } from './render.js';
-import { createCardFilmTemplate } from './view/card-view.js';
-import { createStatistiscFilmsTemplates } from './view/statistic-view.js';
-import { createProfileRatingTemplate } from './view/profile-rating-view.js';
-import { createBtnShowMoreTemplate } from './view/btn-show-more.js';
-import { createContainerCardsFilmsTemplate } from './view/container-card-view.js';
-import { createFilmDetailsPopupTemplates } from './view/film-details-popup-view.js';
-import { createSortTemplate } from './view/sort-view.js';
+import FilterView from './view/site-menu-view.js';
+import { render, RenderPosition } from './render.js';
+import CardFilmView from './view/card-view.js';
+import StatisticsView from './view/statistic-view.js';
+import ProfileRatingView from './view/profile-rating-view.js';
+import BtnShowMoreView from './view/btn-show-more.js';
+import ContainerCardsView from './view/container-card-view.js';
+import PopupFilmView from './view/film-details-popup-view.js';
+import SortMenuView from './view/sort-view.js';
 import { generateCardFilm } from './mock/film.js';
 import { generateFilter } from './mock/filter.js';
 
@@ -20,25 +20,34 @@ const footerStatisticsElement = footerMainElement.querySelector('.footer__statis
 
 const films = Array.from({length: FILM_CARD_COUNT}, generateCardFilm);
 const filters = generateFilter(films);
-renderTemplate(siteMainElement, createFilterTemplate(filters), RenderPosition.AFTERBEGIN); //меню
+render(siteMainElement, new FilterView(filters).element, RenderPosition.AFTERBEGIN); //меню
 
 const sortMainTemplateElement = siteMainElement.querySelector('.main-navigation');
-renderTemplate(sortMainTemplateElement, createSortTemplate(), RenderPosition.AFTEREND); //сортировка
+render(sortMainTemplateElement, new SortMenuView().element, RenderPosition.AFTEREND); //сортировка
 
-renderTemplate(headerLogoMainElement, createProfileRatingTemplate(), RenderPosition.BEFOREEND); //звание пользователя
-renderTemplate(siteMainElement, createContainerCardsFilmsTemplate(), RenderPosition.BEFOREEND); //контейнер куда поместим карточки фильмов
+render(headerLogoMainElement, new ProfileRatingView().element, RenderPosition.BEFOREEND); //звание пользователя
+render(siteMainElement, new ContainerCardsView().element, RenderPosition.BEFOREEND); //контейнер куда поместим карточки фильмов
 
 const filmsElement = siteMainElement.querySelector('.films');
 const filmsListContainerElement = filmsElement.querySelector('.films-list__container');
 
+//получает ссылку на контейнер куда отрисовываем и данные о фильме
+const renderFilms = (filmListEl, film) => {
+  const filmComponent = new CardFilmView(film);
+  const filmPopupComponent = new PopupFilmView(film);
+
+  render (filmListEl, filmComponent.element, RenderPosition.BEFOREEND);
+
+};
+
 for (let i = 0; i < Math.min(films.length, FILM_COUNT_PER_STEP); i++) {
-  renderTemplate(filmsListContainerElement, createCardFilmTemplate(films[i]), RenderPosition.BEFOREEND); //карточки фильмов
+  renderFilms(filmsListContainerElement, films[i]); //карточки фильмов
 }
 
 const filmsListElement = filmsElement.querySelector('.films-list');
 if (films.length > FILM_COUNT_PER_STEP) {
   let renderFilmsCount = FILM_COUNT_PER_STEP;
-  renderTemplate(filmsListElement, createBtnShowMoreTemplate(), RenderPosition.BEFOREEND);
+  render(filmsListElement, new BtnShowMoreView().element, RenderPosition.BEFOREEND);
 
   const showMoreButton = filmsListElement.querySelector('.films-list__show-more');
 
@@ -46,7 +55,7 @@ if (films.length > FILM_COUNT_PER_STEP) {
     evt.preventDefault();
     films
       .slice(renderFilmsCount, renderFilmsCount + FILM_COUNT_PER_STEP)
-      .forEach((film) => renderTemplate(filmsListContainerElement, createCardFilmTemplate(film), RenderPosition.BEFOREEND));
+      .forEach((film) => renderFilms(filmsListContainerElement,film));
     renderFilmsCount += FILM_COUNT_PER_STEP;
 
     if (renderFilmsCount >= films.length) {
@@ -54,5 +63,8 @@ if (films.length > FILM_COUNT_PER_STEP) {
     }
   });
 }
-renderTemplate(footerStatisticsElement, createStatistiscFilmsTemplates(), RenderPosition.BEFOREEND);
-renderTemplate(footerMainElement, createFilmDetailsPopupTemplates(films[0]), RenderPosition.BEFOREEND);
+
+render(footerStatisticsElement, new StatisticsView().element, RenderPosition.BEFOREEND);
+//renderElement(footerMainElement, new PopupFilmView(films[0]).element, RenderPosition.BEFOREEND);
+
+//film-card__link
