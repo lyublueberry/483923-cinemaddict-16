@@ -50,6 +50,7 @@ const renderFilms = (filmListEl, film) => {
       evt.preventDefault();
       replacePopupToCardFilm();
       document.removeEventListener('keydown', onEscKeyDown);
+      document.body.classList.remove('hide-overflow');
     }
   };
 
