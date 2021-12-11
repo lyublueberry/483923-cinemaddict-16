@@ -7,6 +7,7 @@ import BtnShowMoreView from './view/btn-show-more.js';
 import ContainerCardsView from './view/container-card-view.js';
 import PopupFilmView from './view/film-details-popup-view.js';
 import SortMenuView from './view/sort-view.js';
+import MessageFilmsListEmptyView from './view/no-films-view.js';
 import { generateCardFilm } from './mock/film.js';
 import { generateFilter } from './mock/filter.js';
 
@@ -36,9 +37,40 @@ const renderFilms = (filmListEl, film) => {
   const filmComponent = new CardFilmView(film);
   const filmPopupComponent = new PopupFilmView(film);
 
-  render (filmListEl, filmComponent.element, RenderPosition.BEFOREEND);
+  const replaceCardFilmToPopup = () => {
+    filmListEl.replaceChild(filmPopupComponent.element, filmComponent.element);//Замена одного компонента корточки на попап
+  };
 
+  const replacePopupToCardFilm = () => {
+    filmListEl.replaceChild(filmComponent.element, filmPopupComponent.element);//замена через ReplaceChild компомент попап на карточки
+  };
+
+  const onEscKeyDown = (evt) => {
+    if(evt.key === 'Escape' || evt.key === 'Esc') {
+      evt.preventDefault();
+      replacePopupToCardFilm();
+      document.removeEventListener('keydown', onEscKeyDown);
+    }
+  };
+
+  filmComponent.element.querySelector('.film-card__link').addEventListener('click', () => {
+    replaceCardFilmToPopup();
+    document.body.classList.add('hide-overflow');
+    document.addEventListener('keydown', onEscKeyDown);
+  });
+
+  filmPopupComponent.element.querySelector('.film-details__close-btn').addEventListener('click', () => {
+    replacePopupToCardFilm();
+    document.body.classList.remove('hide-overflow');
+    document.removeEventListener('keydown', onEscKeyDown);
+  });
+
+  render (filmListEl, filmComponent.element, RenderPosition.BEFOREEND);
 };
+
+if(films.length === 0) {
+  render(filmsListContainerElement, new MessageFilmsListEmptyView().element, RenderPosition.BEFOREEND);
+}
 
 for (let i = 0; i < Math.min(films.length, FILM_COUNT_PER_STEP); i++) {
   renderFilms(filmsListContainerElement, films[i]); //карточки фильмов
@@ -65,6 +97,3 @@ if (films.length > FILM_COUNT_PER_STEP) {
 }
 
 render(footerStatisticsElement, new StatisticsView().element, RenderPosition.BEFOREEND);
-//renderElement(footerMainElement, new PopupFilmView(films[0]).element, RenderPosition.BEFOREEND);
-
-//film-card__link
