@@ -8,29 +8,6 @@ import {
 
 const dateFormatComment = 'YYYY/MM/DD HH:mm';
 
-const createCommentFilmTemplate = (comments) => {
-
-  const {
-    text,
-    emotion,
-    author,
-    date
-  } = comments;
-  return `<li class="film-details__comment">
-            <span class="film-details__comment-emoji">
-              <img src="${emotion}" width="55" height="55" alt="emoji-smile">
-            </span>
-            <div>
-              <p class="film-details__comment-text">${text}</p>
-              <p class="film-details__comment-info">
-                <span class="film-details__comment-author">${author}</span>
-                <span class="film-details__comment-day">${dateFilm(date, dateFormatComment)}</span>
-                <button class="film-details__comment-delete">Delete</button>
-              </p>
-            </div>
-          </li>`;
-};
-
 export default class CommentFilmView {
   #element = null;
   #comment = null;
@@ -48,6 +25,19 @@ export default class CommentFilmView {
   }
 
   get template() {
+    const createCommentFilmTemplate = (comment) => `<li class="film-details__comment">
+                <span class="film-details__comment-emoji">
+                  <img src="${comment.emotion}" width="55" height="55" alt="emoji-smile">
+                </span>
+                <div>
+                  <p class="film-details__comment-text">${comment.text}</p>
+                  <p class="film-details__comment-info">
+                    <span class="film-details__comment-author">${comment.author}</span>
+                    <span class="film-details__comment-day">${dateFilm(comment.date, dateFormatComment)}</span>
+                    <button class="film-details__comment-delete">Delete</button>
+                  </p>
+                </div>
+              </li>`;
     return createCommentFilmTemplate(this.#comment);
   }
 

@@ -21,13 +21,18 @@ const footerStatisticsElement = footerMainElement.querySelector('.footer__statis
 
 const films = Array.from({length: FILM_CARD_COUNT}, generateCardFilm);
 const filters = generateFilter(films);
-render(siteMainElement, new FilterView(filters).element, RenderPosition.AFTERBEGIN); //меню
+const filterView  = new FilterView(filters);
+render(siteMainElement, filterView.element, RenderPosition.AFTERBEGIN); //меню
 
 const sortMainTemplateElement = siteMainElement.querySelector('.main-navigation');
-render(sortMainTemplateElement, new SortMenuView().element, RenderPosition.AFTEREND); //сортировка
+const sortMenuView = new SortMenuView();
+render(sortMainTemplateElement, sortMenuView.element, RenderPosition.AFTEREND); //сортировка
 
-render(headerLogoMainElement, new ProfileRatingView().element, RenderPosition.BEFOREEND); //звание пользователя
-render(siteMainElement, new ContainerCardsView().element, RenderPosition.BEFOREEND); //контейнер куда поместим карточки фильмов
+const profileRatingView = new ProfileRatingView();
+render(headerLogoMainElement, profileRatingView.element, RenderPosition.BEFOREEND); //звание пользователя
+
+const containerCardsView  = new ContainerCardsView();
+render(siteMainElement, containerCardsView.element, RenderPosition.BEFOREEND); //контейнер куда поместим карточки фильмов
 
 const filmsElement = siteMainElement.querySelector('.films');
 const filmsListContainerElement = filmsElement.querySelector('.films-list__container');
@@ -70,7 +75,8 @@ const renderFilms = (filmListEl, film) => {
 };
 
 if(films.length === 0) {
-  render(filmsListContainerElement, new MessageFilmsListEmptyView().element, RenderPosition.BEFOREEND);
+  const messageFilmsListEmptyView = new MessageFilmsListEmptyView();
+  render(filmsListContainerElement, messageFilmsListEmptyView.element, RenderPosition.BEFOREEND);
 }
 
 for (let i = 0; i < Math.min(films.length, FILM_COUNT_PER_STEP); i++) {
@@ -80,7 +86,8 @@ for (let i = 0; i < Math.min(films.length, FILM_COUNT_PER_STEP); i++) {
 const filmsListElement = filmsElement.querySelector('.films-list');
 if (films.length > FILM_COUNT_PER_STEP) {
   let renderFilmsCount = FILM_COUNT_PER_STEP;
-  render(filmsListElement, new BtnShowMoreView().element, RenderPosition.BEFOREEND);
+  const btnShowMoreView = new BtnShowMoreView();
+  render(filmsListElement, btnShowMoreView.element, RenderPosition.BEFOREEND);
 
   const showMoreButton = filmsListElement.querySelector('.films-list__show-more');
 
@@ -97,4 +104,5 @@ if (films.length > FILM_COUNT_PER_STEP) {
   });
 }
 
-render(footerStatisticsElement, new StatisticsView().element, RenderPosition.BEFOREEND);
+const statisticsView = new StatisticsView();
+render(footerStatisticsElement, statisticsView.element, RenderPosition.BEFOREEND);

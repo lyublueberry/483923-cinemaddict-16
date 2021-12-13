@@ -394,7 +394,6 @@ button {
   position: absolute;
   transition: bottom 0.2s ease-out;
   width: 100%;
-  z-index: 1;
 }
 
 .film-card--no-controls .film-card__poster {
