@@ -14,8 +14,7 @@ export default class BtnShowMoreView {
   }
 
   get template() {
-    const createBtnShowMoreTemplate = () => '<button class="films-list__show-more">Show more</button>';
-    return createBtnShowMoreTemplate();
+    return '<button class="films-list__show-more">Show more</button>';
   }
 
   removeElement() {
