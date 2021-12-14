@@ -1,10 +1,8 @@
-import {
-  dateFilm
-} from '../util';
-
-import {createElement} from '../render.js';
+import { dateFilm } from '../util';
 
 import CommentFilmView from './comment-view.js';
+
+import AbstractView from './abstract-view.js';
 
 const dateFormatRelise = 'DD MMMM YYYY';
 
@@ -150,27 +148,25 @@ const createFilmDetailsPopupTemplates = (films) => {
 </section>`;
 };
 
-export default class PopupFilmView {
-  #element = null;
+export default class PopupFilmView extends AbstractView {
   #film = null;
 
   constructor(film) {
+    super();
     this.#film = film;
-  }
-
-  get element() {
-    if(!this.#element) {
-      this.#element = createElement(this.template);
-    }
-
-    return this.#element;
   }
 
   get template() {
     return createFilmDetailsPopupTemplates(this.#film);
   }
 
-  remove() {
-    this.#element = null;
+  setClosePopupHandler = (callback) => {
+    this._callback.closeBtn = callback;
+    this.element.querySelector('.film-details__close-btn').addEventListener('click', this.#closeBtnPopup);
+  }
+
+  #closeBtnPopup = (evt) => {
+    evt.preventDefault();
+    this._callback.closeBtn();
   }
 }

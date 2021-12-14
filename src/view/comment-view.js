@@ -1,27 +1,14 @@
-import {
-  dateFilm
-} from '../util';
-
-import {
-  createElement
-} from '../render.js';
+import { dateFilm } from '../util';
+import AbstractView from './abstract-view.js';
 
 const dateFormatComment = 'YYYY/MM/DD HH:mm';
 
-export default class CommentFilmView {
-  #element = null;
+export default class CommentFilmView extends AbstractView {
   #comment = null;
 
   constructor(comment) {
+    super();
     this.#comment = comment;
-  }
-
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
-
-    return this.#element;
   }
 
   get template() {
@@ -39,9 +26,5 @@ export default class CommentFilmView {
                 </div>
               </li>`;
     return createCommentFilmTemplate(this.#comment);
-  }
-
-  removeElement() {
-    this.#element = null;
   }
 }
