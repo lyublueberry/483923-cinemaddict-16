@@ -1,6 +1,7 @@
 import { dateFilm } from '../util';
+import {createElement} from '../render.js';
 
-export const createCardFilmTemplate = (films) => {
+const createCardFilmTemplate = (films) => {
   const {
     poster,
     filmName,
@@ -40,3 +41,28 @@ export const createCardFilmTemplate = (films) => {
         </div>
       </article>`;
 };
+
+export default class CardFilmView {
+  #element = null;
+  #film = null;
+
+  constructor(film) {
+    this.#film = film;
+  }
+
+  get element() {
+    if (!this.#element) {
+      this.#element = createElement(this.template);
+    }
+
+    return this.#element;
+  }
+
+  get template() {
+    return createCardFilmTemplate(this.#film);
+  }
+
+  removeElement() {
+    this.#element = null;
+  }
+}

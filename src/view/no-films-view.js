@@ -1,8 +1,7 @@
-import {
-  createElement
-} from '../render.js';
+import { createElement } from '../render.js';
 
-export default class StatisticsView {
+
+export default class MessageFilmsListEmptyView {
   #element = null;
 
   get element() {
@@ -14,9 +13,7 @@ export default class StatisticsView {
   }
 
   get template() {
-    return `<section class="footer__statistics">
-      <p>130 291 movies inside</p>
-    </section>`;
+    return '<h2 class="films-list__title">There are no movies in our database</h2>';
   }
 
   removeElement() {
