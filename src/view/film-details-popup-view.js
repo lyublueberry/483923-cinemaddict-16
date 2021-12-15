@@ -1,4 +1,4 @@
-import { dateFilm } from '../util';
+import { dateFilm } from '../utils/film.js';
 
 import CommentFilmView from './comment-view.js';
 

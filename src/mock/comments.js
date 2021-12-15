@@ -1,4 +1,6 @@
-import { generateRandomElement, generateDate } from '../util';
+import { generateRandomElement } from '../utils/common.js';
+import { generateDate } from '../utils/film.js';
+
 
 const COMMENT_TEXT = ['good film', 'bad film', 'evil film'];
 const COMMENT_EMOTIONS = ['./images/emoji/angry.png', './images/emoji/sleeping.png', './images/emoji/puke.png', './images/emoji/angry.png'];

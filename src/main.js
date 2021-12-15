@@ -1,5 +1,5 @@
 import FilterView from './view/site-menu-view.js';
-import { render, RenderPosition } from './render.js';
+import { render, RenderPosition, replace, remove } from './utils/render.js';
 import CardFilmView from './view/card-view.js';
 import StatisticsView from './view/statistic-view.js';
 import ProfileRatingView from './view/profile-rating-view.js';
@@ -43,11 +43,11 @@ const renderFilms = (filmListEl, film) => {
   const filmPopupComponent = new PopupFilmView(film);
 
   const replaceCardFilmToPopup = () => {
-    filmListEl.replaceChild(filmPopupComponent.element, filmComponent.element);//Замена одного компонента корточки на попап
+    replace(filmPopupComponent, filmComponent);//Замена одного компонента корточки на попап
   };
 
   const replacePopupToCardFilm = () => {
-    filmListEl.replaceChild(filmComponent.element, filmPopupComponent.element);//замена через ReplaceChild компомент попап на карточки
+    replace(filmComponent, filmPopupComponent);//замена через ReplaceChild компомент попап на карточки
   };
 
   const onEscKeyDown = (evt) => {
@@ -70,7 +70,7 @@ const renderFilms = (filmListEl, film) => {
     document.body.classList.remove('hide-overflow');
     document.removeEventListener('keydown', onEscKeyDown);
   });
-  render (filmListEl, filmComponent.element, RenderPosition.BEFOREEND);
+  render (filmListEl, filmComponent, RenderPosition.BEFOREEND);
 };
 
 if(films.length === 0) {
@@ -89,7 +89,7 @@ if (films.length > FILM_COUNT_PER_STEP) {
   const btnShowMoreView = new BtnShowMoreView();
   render(filmsListElement, btnShowMoreView.element, RenderPosition.BEFOREEND);
 
-  const showMoreButton = filmsListElement.querySelector('.films-list__show-more');
+  /* const showMoreButton = filmsListElement.querySelector('.films-list__show-more'); */
 
   btnShowMoreView.setClickHandler(() => {
     films
@@ -98,7 +98,7 @@ if (films.length > FILM_COUNT_PER_STEP) {
     renderFilmsCount += FILM_COUNT_PER_STEP;
 
     if (renderFilmsCount >= films.length) {
-      showMoreButton.remove();
+      remove(btnShowMoreView);
     }
   });
 }

@@ -1,4 +1,4 @@
-import { dateFilm } from '../util';
+import { dateFilm } from '../utils/film.js';
 import AbstractView from './abstract-view.js';
 
 const dateFormatComment = 'YYYY/MM/DD HH:mm';
