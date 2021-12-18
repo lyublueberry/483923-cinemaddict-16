@@ -1,5 +1,6 @@
-import { generateRandomElement, getRandomInteger, generateDate, generateRandomBoolean, randomArrayValues } from '../util';
+import { generateRandomElement, getRandomInteger, generateRandomBoolean, randomArrayValues } from '../utils/common.js';
 import { generateCommentFilm } from '../mock/comments.js';
+import { generateDate } from '../utils/film.js';
 
 const POSTER_PICTURES_FILM = ['./images/posters/made-for-each-other.png', './images/posters/popeye-meets-sinbad.png',
   './images/posters/sagebrush-trail.jpg', './images/posters/the-man-with-the-golden-arm.jpg',

@@ -1,5 +1,5 @@
-import { dateFilm } from '../util';
-import {createElement} from '../render.js';
+import { dateFilm } from '../utils/film.js';
+import AbstractView from './abstract-view.js';
 
 const createCardFilmTemplate = (films) => {
   const {
@@ -42,27 +42,25 @@ const createCardFilmTemplate = (films) => {
       </article>`;
 };
 
-export default class CardFilmView {
-  #element = null;
+export default class CardFilmView extends AbstractView {
   #film = null;
 
   constructor(film) {
+    super();
     this.#film = film;
-  }
-
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
-
-    return this.#element;
   }
 
   get template() {
     return createCardFilmTemplate(this.#film);
   }
 
-  removeElement() {
-    this.#element = null;
+  setPopupClickHandler = (callback) => {
+    this._callback.popupOpenClick = callback;
+    this.element.querySelector('.film-card__link').addEventListener('click', this.#popupOpenClickHandler);
+  }
+
+  #popupOpenClickHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.popupOpenClick();
   }
 }

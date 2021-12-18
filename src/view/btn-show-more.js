@@ -1,23 +1,17 @@
-import {
-  createElement
-} from '../render.js';
+import AbstractView from './abstract-view.js';
 
-export default class BtnShowMoreView {
-  #element = null;
-
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
-
-    return this.#element;
-  }
-
+export default class BtnShowMoreView extends AbstractView {
   get template() {
     return '<button class="films-list__show-more">Show more</button>';
   }
 
-  removeElement() {
-    this.#element = null;
+  setClickHandler = (callback) => {
+    this._callback.clickBtn = callback;//колбэк записали во внутреннее устройство
+    this.element.addEventListener('click', this.#clickHandler);//передали абстрактный обработчик
+  }
+
+  #clickHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.clickBtn();
   }
 }
