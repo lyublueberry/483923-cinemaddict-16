@@ -10,14 +10,14 @@ import SortMenuView from './view/sort-view.js';
 import MessageFilmsListEmptyView from './view/no-films-view.js';
 import { generateCardFilm } from './mock/film.js';
 import { generateFilter } from './mock/filter.js';
+//import MovieListPresenter from './presenter/movie-list-presenter.js';
 
 const headerMainElement = document.querySelector('.header');
-const headerLogoMainElement = headerMainElement.querySelector('.header__logo.logo');
 const siteMainElement = document.querySelector('.main');
+const footerMainElement = document.querySelector('.footer');
+
 const FILM_CARD_COUNT = 20;
 const FILM_COUNT_PER_STEP = 5;
-const footerMainElement = document.querySelector('.footer');
-const footerStatisticsElement = footerMainElement.querySelector('.footer__statistics');
 
 const films = Array.from({length: FILM_CARD_COUNT}, generateCardFilm);
 const filters = generateFilter(films);
@@ -29,7 +29,7 @@ const sortMenuView = new SortMenuView();
 render(sortMainTemplateElement, sortMenuView.element, RenderPosition.AFTEREND); //сортировка
 
 const profileRatingView = new ProfileRatingView();
-render(headerLogoMainElement, profileRatingView.element, RenderPosition.BEFOREEND); //звание пользователя
+render(headerMainElement, profileRatingView.element, RenderPosition.BEFOREEND); //звание пользователя
 
 const containerCardsView  = new ContainerCardsView();
 render(siteMainElement, containerCardsView.element, RenderPosition.BEFOREEND); //контейнер куда поместим карточки фильмов
@@ -103,5 +103,8 @@ if (films.length > FILM_COUNT_PER_STEP) {
   });
 }
 
+/* const movieListPresenter = new MovieListPresenter(siteMainElement);
+movieListPresenter.init(films); */
 const statisticsView = new StatisticsView();
+const footerStatisticsElement = footerMainElement.querySelector('.footer__statistics');
 render(footerStatisticsElement, statisticsView.element, RenderPosition.BEFOREEND);
