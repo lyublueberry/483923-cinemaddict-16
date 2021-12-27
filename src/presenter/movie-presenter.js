@@ -1,6 +1,6 @@
-import PopupFilmView from './view/film-details-popup-view.js';
-import CardFilmView from './view/card-view.js';
-import { render, RenderPosition, replace } from './utils/render.js';
+import PopupFilmView from '../view/film-details-popup-view.js';
+import CardFilmView from '../view/card-view.js';
+import { render, RenderPosition, replace } from '../utils/render.js';
 
 const KEYDOWN = 'keydown';
 const ESCAPE = 'Escape';

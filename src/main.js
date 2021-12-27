@@ -106,6 +106,7 @@ const filmsListElement = filmsElement.querySelector('.films-list');
 
 const movieListPresenter = new MovieListPresenter(siteMainElement, filmsListContainerElement, filmsListElement);
 movieListPresenter.init(films, filters);
+
 const footerMainElement = document.querySelector('.footer');
 const statisticsView = new StatisticsView();
 const footerStatisticsElement = footerMainElement.querySelector('.footer__statistics');
