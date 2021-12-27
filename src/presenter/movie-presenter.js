@@ -55,3 +55,4 @@ export default class MoviePresenter {
     this.#replacePopupToCardFilm();
   };
 }
+//h2 и список фильмов или просто h2 и текст

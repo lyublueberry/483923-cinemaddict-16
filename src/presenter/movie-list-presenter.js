@@ -5,19 +5,21 @@ import BtnShowMoreView from '../view/btn-show-more.js';
 import {render, RenderPosition, remove} from '../utils/render.js';
 import FilterView from '../view/site-menu-view.js';
 import SortMenuView from '../view/sort-view.js';
-import MoviePresenter from './movie-presenter.js';
+import ContainerFilmsView from '../view/container-films-view.js';
+//import MoviePresenter from './movie-presenter.js';
 
 const FILM_COUNT_PER_STEP = 5;
 
 export default class MovieListPresenter  {
   #siteMainElement = null;
-  #filmsListContainerElement = null;
-  #filmsListElement = null;
 
   #sortMenuFilm = new SortMenuView();
   #noFilmComponent = new MessageFilmsListEmptyView();
   #filmsListContainer  = new ContainerCardsView();
   #loadMoreButtonComponent  = new BtnShowMoreView();
+  #generalContainerFilms = new ContainerFilmsView();
+
+  //создать вью const filmsElement = siteMainElement.querySelector('.films'); const filmsListContainerElement = filmsElement.querySelector('.films-list__container');
 
   #listFilms = []; //фильмы
   #filters = [];
@@ -25,21 +27,24 @@ export default class MovieListPresenter  {
   #filmPresenter = new Map();
 
   //здесь передаем куда этот контейнер надо встроить
-  constructor(siteMainElement, filmsListContainerElement, filmsListElement) {
+  constructor(siteMainElement) {
     this.#siteMainElement = siteMainElement;
-    this.#filmsListContainerElement = filmsListContainerElement;
-    this.#filmsListElement = filmsListElement;
   }
 
   //метод инициализации - начала работы модуля
   init = (listFilms, filters) => {
     this.#listFilms = [...listFilms];
     this.#filters = [...filters];
-
-    render (this.#siteMainElement, this.#filmsListContainer, RenderPosition.BEFOREEND);//контейнер куда поместим карточки фильмов
     render(this.#siteMainElement, new FilterView(filters), RenderPosition.AFTERBEGIN); //меню
+    this.#renderSortMenuFilm();
 
-    this.#renderFilmsBoard();
+    render(this.#siteMainElement, this.#generalContainerFilms, RenderPosition.BEFOREEND);
+
+    this.#renderShowMoreButton();
+
+    render(this.#generalContainerFilms, this.#filmsListContainer, RenderPosition.BEFOREEND);
+    //render (this.#siteMainElement, this.#filmsListContainer, RenderPosition.BEFOREEND);//контейнер куда поместим карточки фильмов
+
   };
 
   #renderNoFilms = () => {
@@ -58,41 +63,29 @@ export default class MovieListPresenter  {
     this.#listFilms.slice(from, to).forEach((film) => this.#renderFilm(film));
   };
 
-  #renderFilmList = () => {
+/*   #renderFilmList = () => {
     for (let i = 0; i < Math.min(this.#listFilms.length, FILM_COUNT_PER_STEP); i++) {
       this.#renderFilms(this.#filmsListContainerElement, this.#listFilms[i]); //карточки фильмов
     }
-  };
+  }; */
 
   #renderSortMenuFilm = () => {
-    render(this.#siteMainElement, this.#sortMenuFilm, RenderPosition.AFTEREND); //сортировка
+    render(this.#siteMainElement, this.#sortMenuFilm, RenderPosition.BEFOREEND); //сортировка
   };
 
   #renderShowMoreButton = () => {
-    render(this.#filmsListElement, this.#loadMoreButtonComponent, RenderPosition.BEFOREEND);
+    render(this.#filmsListContainer, this.#loadMoreButtonComponent, RenderPosition.BEFOREEND);
 
-    this.#loadMoreButtonComponent.setClickHandler(this.#setClickHandler);
+    //this.#loadMoreButtonComponent.setClickHandler(this.#setClickHandler);
   };
 
   #setClickHandler = () => {
-    this.#listFilms.slice(this.#renderedFilmCount, this.#renderedFilmCount + FILM_COUNT_PER_STEP).forEach((film) => this.#renderFilm(this.#filmsListContainerElement,film));
+/*     this.#listFilms.slice(this.#renderedFilmCount, this.#renderedFilmCount + FILM_COUNT_PER_STEP).forEach((film) => this.#renderFilm(this.#filmsListContainerElement,film));
     this.#renderedFilmCount += FILM_COUNT_PER_STEP;
 
     if (this.#renderedFilmCount >= this.#listFilms.length) {
       remove(this.#loadMoreButtonComponent);
-    }
+    } */
   };
 
-  #renderFilmsBoard = () => {
-    if(this.#listFilms.length === 0) {
-      this.#renderNoFilms();
-      this.#renderFilmList();
-    }
-    else {
-      this.#renderSortMenuFilm();
-    }
-    if (this.#listFilms.length > FILM_COUNT_PER_STEP) {
-      this.#renderShowMoreButton();
-    }
-  };
 }

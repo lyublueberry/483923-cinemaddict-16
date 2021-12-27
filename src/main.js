@@ -25,18 +25,12 @@ const FILM_CARD_COUNT = 20;
 const films = Array.from({length: FILM_CARD_COUNT}, generateCardFilm);
 const filters = generateFilter(films);
 
-/* const filterView  = new FilterView(filters);
-render(siteMainElement, filterView.element, RenderPosition.AFTERBEGIN); //меню */
-
-//const sortMainTemplateElement = siteMainElement.querySelector('.main-navigation');
-/* const sortMenuView = new SortMenuView();
-render(sortMainTemplateElement, sortMenuView.element, RenderPosition.AFTEREND); //сортировка
-
+/*
 const containerCardsView  = new ContainerCardsView();
 render(siteMainElement, containerCardsView.element, RenderPosition.BEFOREEND); //контейнер куда поместим карточки фильмов */
 
-const filmsElement = siteMainElement.querySelector('.films');
-const filmsListContainerElement = filmsElement.querySelector('.films-list__container');
+//const filmsElement = siteMainElement.querySelector('.films');
+//const filmsListContainerElement = filmsElement.querySelector('.films-list__container');
 
 //получает ссылку на контейнер куда отрисовываем и данные о фильме
 /* const renderFilms = (filmListEl, film) => {
@@ -83,7 +77,7 @@ const filmsListContainerElement = filmsElement.querySelector('.films-list__conta
   renderFilms(filmsListContainerElement, films[i]); //карточки фильмов
 } */
 
-const filmsListElement = filmsElement.querySelector('.films-list');
+//const filmsListElement = filmsElement.querySelector('.films-list');
 
 /* if (films.length > FILM_COUNT_PER_STEP) {
   let renderFilmsCount = FILM_COUNT_PER_STEP;
@@ -104,7 +98,7 @@ const filmsListElement = filmsElement.querySelector('.films-list');
   });
 } */
 
-const movieListPresenter = new MovieListPresenter(siteMainElement, filmsListContainerElement, filmsListElement);
+const movieListPresenter = new MovieListPresenter(siteMainElement);
 movieListPresenter.init(films, filters);
 
 const footerMainElement = document.querySelector('.footer');
