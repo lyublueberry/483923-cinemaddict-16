@@ -2,12 +2,14 @@ import PopupFilmView from './view/film-details-popup-view.js';
 import CardFilmView from './view/card-view.js';
 import { render, RenderPosition, replace } from './utils/render.js';
 
+const KEYDOWN = 'keydown';
+const ESCAPE = 'Escape';
+const ESC = 'Esc';
+
 export default class MoviePresenter {
   #filmListContainer = null;
-
   #filmComponent = null;
   #filmPopupComponent = null;
-
   #film = null;
 
   constructor(filmListContainer) {
@@ -24,32 +26,32 @@ export default class MoviePresenter {
     this.#filmPopupComponent.setClosePopupHandler(this.#handlePopupToCardFilm);
 
     render(this.#filmListContainer, this.#filmComponent, RenderPosition.BEFOREEND);
-  }
+  };
 
   #replaceCardFilmToPopup = () => {
     replace(this.#filmPopupComponent, this.#filmComponent);
-    document.addEventListener('keydown', this.#escKeyDownHandler);
-  }
+    document.addEventListener(KEYDOWN, this.#escKeyDownHandler);
+  };
 
-  #replaceFormToCard = () => {
+  #replacePopupToCardFilm = () => {
     replace(this.#filmComponent, this.#filmPopupComponent);
-    document.removeEventListener('keydown', this.#escKeyDownHandler);
-  }
+    document.removeEventListener(KEYDOWN, this.#escKeyDownHandler);
+  };
 
   #escKeyDownHandler = (evt) => {
-    if(evt.key === 'Escape' || evt.key === 'Esc') {
+    if(evt.key === ESCAPE || evt.key === ESC) {
       evt.preventDefault();
-      replacePopupToCardFilm();
-      document.removeEventListener('keydown', onEscKeyDown);
+      this.#replacePopupToCardFilm();
+      //document.removeEventListener(KEYDOWN, this.#onEscKeyDown);
       document.body.classList.remove('hide-overflow');
     }
-  }
+  };
 
   #handleCardFilmToPopup = () => {
     this.#replaceCardFilmToPopup();
-  }
+  };
 
   #handlePopupToCardFilm = () => {
     this.#replacePopupToCardFilm();
-  }
+  };
 }
