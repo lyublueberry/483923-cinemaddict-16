@@ -6,7 +6,8 @@ import {render, RenderPosition, remove} from '../utils/render.js';
 import FilterView from '../view/site-menu-view.js';
 import SortMenuView from '../view/sort-view.js';
 import ContainerFilmsView from '../view/container-films-view.js';
-//import MoviePresenter from './movie-presenter.js';
+
+import MoviePresenter from './movie-presenter.js';
 
 const FILM_COUNT_PER_STEP = 5;
 
@@ -15,11 +16,9 @@ export default class MovieListPresenter  {
 
   #sortMenuFilm = new SortMenuView();
   #noFilmComponent = new MessageFilmsListEmptyView();
-  #filmsListContainer  = new ContainerCardsView();
+  #filmsListContainer  = new ContainerCardsView();//куда поместим все карточки
   #loadMoreButtonComponent  = new BtnShowMoreView();
   #generalContainerFilms = new ContainerFilmsView();
-
-  //создать вью const filmsElement = siteMainElement.querySelector('.films'); const filmsListContainerElement = filmsElement.querySelector('.films-list__container');
 
   #listFilms = []; //фильмы
   #filters = [];
@@ -37,55 +36,61 @@ export default class MovieListPresenter  {
     this.#filters = [...filters];
     render(this.#siteMainElement, new FilterView(filters), RenderPosition.AFTERBEGIN); //меню
     this.#renderSortMenuFilm();
-
+    this.#renderFilm(listFilms);
+    this.#renderFilmsList();
     render(this.#siteMainElement, this.#generalContainerFilms, RenderPosition.BEFOREEND);
-
-    this.#renderShowMoreButton();
-
+    if(this.#listFilms.length === 0){
+      this.#renderNoFilms();
+    }
     render(this.#generalContainerFilms, this.#filmsListContainer, RenderPosition.BEFOREEND);
-    //render (this.#siteMainElement, this.#filmsListContainer, RenderPosition.BEFOREEND);//контейнер куда поместим карточки фильмов
-
+    this.#renderShowMoreButton();
   };
 
   #renderNoFilms = () => {
-    render(this.#filmsListContainer, this.#noFilmComponent, RenderPosition.BEFOREEND);
+    render(this.#generalContainerFilms, this.#noFilmComponent, RenderPosition.BEFOREEND);
   };
-
-  #renderFilm = (film) => {
-    //отрисовка одного фильма
-    const filmPresenter = new MoviePresenter(this.#filmsListContainer);
-    filmPresenter.init(film);
-    this.#filmPresenter.map(filmPresenter);
-  };
-
-  #renderFilms = (from, to) => {
-    //отрисовка № фильмов за раз
-    this.#listFilms.slice(from, to).forEach((film) => this.#renderFilm(film));
-  };
-
-/*   #renderFilmList = () => {
-    for (let i = 0; i < Math.min(this.#listFilms.length, FILM_COUNT_PER_STEP); i++) {
-      this.#renderFilms(this.#filmsListContainerElement, this.#listFilms[i]); //карточки фильмов
-    }
-  }; */
 
   #renderSortMenuFilm = () => {
     render(this.#siteMainElement, this.#sortMenuFilm, RenderPosition.BEFOREEND); //сортировка
   };
 
+//получает ссылку на контейнер куда отрисовываем и данные о фильме
+ #renderFilm = (film) => {
+   const moviePresenter = new MoviePresenter(this.#filmsListContainer);
+   moviePresenter.init(film);
+   this.#filmPresenter.set(moviePresenter);
+};
+
+/* if(films.length === 0) {
+  const messageFilmsListEmptyView = new MessageFilmsListEmptyView();
+  render(filmsListContainerElement, messageFilmsListEmptyView.element, RenderPosition.BEFOREEND);
+} */
+
+#renderFilmsList = () => {
+  this.#renderFilms(1, Math.min(this.#listFilms.length, FILM_COUNT_PER_STEP));
+
+/*   if (this.#listFilms.length > FILM_COUNT_PER_STEP) {
+    this.#renderShowMoreButton();
+  } */
+};
+
+#renderFilms = (from, to) => {
+  this.#listFilms.slice(from, to).forEach((film) => this.#renderFilm(film));
+};
+
+
   #renderShowMoreButton = () => {
-    render(this.#filmsListContainer, this.#loadMoreButtonComponent, RenderPosition.BEFOREEND);
-
-    //this.#loadMoreButtonComponent.setClickHandler(this.#setClickHandler);
+    /* if(this.#listFilms > this.#renderedFilmCount){ */
+      render(this.#filmsListContainer, this.#loadMoreButtonComponent, RenderPosition.BEFOREEND);
+    /* } */
+/*     this.#loadMoreButtonComponent.setClickHandler(() => {
+      this.#listFilms
+      .slice(this.#renderedFilmCount, this.#renderedFilmCount + FILM_COUNT_PER_STEP)
+      .forEach((film) => renderFilms(filmsListContainerElement, film));
+      this.#renderedFilmCount += FILM_COUNT_PER_STEP;
+      if (renderFilmsCount >= this.#listFilms.length) {
+        remove(this.#loadMoreButtonComponent);
+      }
+    }); */
   };
-
-  #setClickHandler = () => {
-/*     this.#listFilms.slice(this.#renderedFilmCount, this.#renderedFilmCount + FILM_COUNT_PER_STEP).forEach((film) => this.#renderFilm(this.#filmsListContainerElement,film));
-    this.#renderedFilmCount += FILM_COUNT_PER_STEP;
-
-    if (this.#renderedFilmCount >= this.#listFilms.length) {
-      remove(this.#loadMoreButtonComponent);
-    } */
-  };
-
 }

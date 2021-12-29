@@ -22,13 +22,13 @@ export default class MoviePresenter {
     this.#filmComponent = new CardFilmView(film);
     this.#filmPopupComponent = new PopupFilmView(film);
 
-    this.#filmComponent.setPopupClickHandler(this.#handleCardFilmToPopup);
-    this.#filmPopupComponent.setClosePopupHandler(this.#handlePopupToCardFilm);
+/*     this.#filmComponent.setPopupClickHandler(this.#handleCardFilmToPopup);
+    this.#filmPopupComponent.setClosePopupHandler(this.#handlePopupToCardFilm); */
 
-    render(this.#filmListContainer, this.#filmComponent, RenderPosition.BEFOREEND);
+    render(this.#filmListContainer.container, this.#filmComponent, RenderPosition.BEFOREEND);
   };
 
-  #replaceCardFilmToPopup = () => {
+/*   #replaceCardFilmToPopup = () => {
     replace(this.#filmPopupComponent, this.#filmComponent);
     document.addEventListener(KEYDOWN, this.#escKeyDownHandler);
   };
@@ -53,6 +53,6 @@ export default class MoviePresenter {
 
   #handlePopupToCardFilm = () => {
     this.#replacePopupToCardFilm();
-  };
+  }; */
 }
 //h2 и список фильмов или просто h2 и текст
