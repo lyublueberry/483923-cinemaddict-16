@@ -19,7 +19,7 @@ render(headerMainElement, profileRatingView.element, RenderPosition.BEFOREEND); 
 
 const siteMainElement = document.querySelector('.main');
 
-const FILM_CARD_COUNT = 0;
+const FILM_CARD_COUNT = 20;
 //const FILM_COUNT_PER_STEP = 5;
 
 const films = Array.from({length: FILM_CARD_COUNT}, generateCardFilm);

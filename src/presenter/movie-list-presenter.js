@@ -2,7 +2,7 @@
 import MessageFilmsListEmptyView from '../view/no-films-view.js';
 import ContainerCardsView from '../view/container-card-view.js';
 import BtnShowMoreView from '../view/btn-show-more.js';
-import {render, RenderPosition, remove} from '../utils/render.js';
+import {render, RenderPosition, remove, updateItem} from '../utils/render.js';
 import FilterView from '../view/site-menu-view.js';
 import SortMenuView from '../view/sort-view.js';
 import ContainerFilmsView from '../view/container-films-view.js';
@@ -41,16 +41,20 @@ export default class MovieListPresenter  {
 
   //получает ссылку на контейнер куда отрисовываем и данные о фильме
   #renderFilm = (film) => {
-    const moviePresenter = new MoviePresenter(this.#filmsListContainer);
+    const moviePresenter = new MoviePresenter(this.#filmsListContainer, this.#handleFilmChange, this.#handleModeChange);
     moviePresenter.init(film);
     this.#filmPresenter.set(film.id, moviePresenter);
+  }
+
+  #handleModeChange = () => {
+    this.#filmPresenter.forEach((presenter) => presenter.resetView());
   }
 
   #renderFilms = (from, to) => {
     this.#listFilms.slice(from, to).forEach((film) => this.#renderFilm(film));
   }
 
-  #clearFilmsList = () => {
+  #clearFilmList = () => {
     this.#filmPresenter.forEach((presenter) => presenter.destroy());
     this.#filmPresenter.clear();
     this.#renderedFilmCount = FILM_COUNT_PER_STEP;
@@ -71,8 +75,8 @@ export default class MovieListPresenter  {
     }
   }
 
-  handleFilmCHange = (updateFilm) => {
-    this.#listFilms = updateFilm(this.#listFilms, updateFilm);
+  #handleFilmChange = (updateFilm) => {
+    this.#listFilms = updateItem(this.#listFilms, updateFilm);
     this.#filmPresenter.get(updateFilm.id).init(updateFilm);
   }
 
