@@ -6,6 +6,8 @@ import {render, RenderPosition, remove, updateItem} from '../utils/render.js';
 import FilterView from '../view/site-menu-view.js';
 import SortMenuView from '../view/sort-view.js';
 import ContainerFilmsView from '../view/container-films-view.js';
+import {sortTaskUp, sortTaskDown} from '../utils/film.js';
+import {SortType} from '../view/sort-view.js';
 
 import MoviePresenter from './movie-presenter.js';
 
@@ -25,6 +27,9 @@ export default class MovieListPresenter  {
   #renderedFilmCount = FILM_COUNT_PER_STEP;
   #filmPresenter = new Map();
 
+  #currentSortType = SortType.DEFAULT;
+  #sourcedBoardTasks = [];
+
   //здесь передаем куда этот контейнер надо встроить
   constructor(siteMainElement) {
     this.#siteMainElement = siteMainElement;
@@ -34,6 +39,9 @@ export default class MovieListPresenter  {
   init = (listFilms, filters) => {
     this.#listFilms = [...listFilms];
     this.#filters = [...filters];
+
+    this.#sourcedBoardTasks = [...listFilms];
+
     render(this.#siteMainElement, this.#generalContainerFilms, RenderPosition.BEFOREEND);
     this.#renderBoard();
     render(this.#siteMainElement, new FilterView(filters), RenderPosition.AFTERBEGIN); //меню
@@ -77,6 +85,7 @@ export default class MovieListPresenter  {
 
   #handleFilmChange = (updateFilm) => {
     this.#listFilms = updateItem(this.#listFilms, updateFilm);
+    this.#sourcedBoardTasks = updateItem(this.#sourcedBoardTasks, updateFilm);
     this.#filmPresenter.get(updateFilm.id).init(updateFilm);
   }
 
@@ -87,6 +96,13 @@ export default class MovieListPresenter  {
 
   #renderSortMenuFilm = () => {
     render(this.#siteMainElement, this.#sortMenuFilm, RenderPosition.AFTERBEGIN); //сортировка
+    this.#sortMenuFilm.setSortTypeChangeHandler(this.#handleSortTypeChange);
+  }
+
+  #handleSortTypeChange = (sortType) => {
+    // - Сортируем задачи
+    // - Очищаем список
+    // - Рендерим список заново
   }
 
   #renderFilmsList = () => {
