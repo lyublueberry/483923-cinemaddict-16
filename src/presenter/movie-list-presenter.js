@@ -89,6 +89,26 @@ export default class MovieListPresenter  {
     this.#filmPresenter.get(updateFilm.id).init(updateFilm);
   }
 
+  #sortTasks = (sortType) => {
+    // 2. Этот исходный массив задач необходим,
+    // потому что для сортировки мы будем мутировать
+    // массив в свойстве listFilms
+    switch (sortType) {
+      case SortType.BY_DATE:
+        this.#listFilms.sort(sortTaskUp);
+        break;
+      case SortType.BY_RATING:
+        this.#listFilms.sort(sortTaskDown);
+        break;
+      default:
+        // 3. А когда пользователь захочет "вернуть всё, как было",
+        // мы просто запишем в listFilms исходный массив
+        this.#listFilms = [...this.#sourcedBoardTasks];
+    }
+
+    this.#currentSortType = sortType;
+  }
+
   #renderShowMoreButton = () => {
     render(this.#filmsListContainer, this.#loadMoreButtonComponent, RenderPosition.BEFOREEND);
     this.#loadMoreButtonComponent.setClickHandler(this.#loadMoreButtonClickHandler);
@@ -101,8 +121,15 @@ export default class MovieListPresenter  {
 
   #handleSortTypeChange = (sortType) => {
     // - Сортируем задачи
+    if (this.#currentSortType === sortType) {
+      return;
+    }
+
+    this.#sortTasks(sortType);
     // - Очищаем список
     // - Рендерим список заново
+    this.#clearFilmList();
+    this.#renderFilmsList();
   }
 
   #renderFilmsList = () => {
