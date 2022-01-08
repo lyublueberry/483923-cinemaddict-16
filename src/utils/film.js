@@ -3,7 +3,7 @@ import { getRandomInteger } from '../utils/common.js';
 
 const MAX_DAYS_GAP = 7;
 
-const generateDate = () => {
+export const generateDate = () => {
   const daysGap = getRandomInteger(-MAX_DAYS_GAP, MAX_DAYS_GAP);
   return dayjs().add(daysGap, 'days').toDate();
 };
@@ -40,5 +40,3 @@ export const sortFilmsByRating = (filmA, filmB) => {
 
   return ratingB - ratingA;
 };
-
-export { generateDate };
