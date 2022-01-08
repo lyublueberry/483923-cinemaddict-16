@@ -28,16 +28,17 @@ const getWeightForNullDate = (dateA, dateB) => {
   return null;
 };
 
-export const sortTaskUp = (taskA, taskB) => {
-  const weight = getWeightForNullDate(taskA.dueDate, taskB.dueDate);
+export const sortFilmsByDate = (filmA, filmB) => {
+  const weight = getWeightForNullDate(filmA.dueDate, filmB.dueDate);
 
-  return weight ?? dayjs(taskA.dueDate).diff(dayjs(taskB.dueDate));
+  return weight ?? dayjs(filmA.releaseDate).diff(dayjs(filmB.releaseDate));
 };
 
-export const sortTaskDown = (taskA, taskB) => {
-  const weight = getWeightForNullDate(taskA.dueDate, taskB.dueDate);
+export const sortFilmsByRating = (filmA, filmB) => {
+  const ratingA = filmA.rating;
+  const ratingB = filmB.rating;
 
-  return weight ?? dayjs(taskB.dueDate).diff(dayjs(taskA.dueDate));
+  return ratingB - ratingA;
 };
 
 export { generateDate };
