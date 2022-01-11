@@ -80,8 +80,8 @@ export default class MoviePresenter {
 
   #replaceCardFilmToPopup = () => {
     this.#removePrevPopupComponent();
-    const ppp = this.#filmPopupComponent instanceof AbstractView ? this.#filmPopupComponent.element : this.#filmPopupComponent;
-    document.body.appendChild(ppp);
+    const popup = this.#filmPopupComponent instanceof AbstractView ? this.#filmPopupComponent.element : this.#filmPopupComponent;
+    document.body.appendChild(popup);
     document.body.classList.add('hide-overflow');
     document.addEventListener(KEYDOWN, this.#escKeyDownHandler);
     this.#changeMode();
@@ -89,8 +89,8 @@ export default class MoviePresenter {
   };
 
   #replacePopupToCardFilm = () => {
-    const ghjghj = this.#filmPopupComponent instanceof AbstractView ? this.#filmPopupComponent.element : this.#filmPopupComponent;
-    document.body.removeChild(ghjghj);
+    const popup = this.#filmPopupComponent instanceof AbstractView ? this.#filmPopupComponent.element : this.#filmPopupComponent;
+    document.body.removeChild(popup);
     document.body.classList.remove('hide-overflow');
     document.removeEventListener(KEYDOWN, this.#escKeyDownHandler);
     this.#mode = Mode.DEFAULT;
