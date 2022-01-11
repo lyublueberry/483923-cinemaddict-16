@@ -49,7 +49,7 @@ export default class MovieListPresenter  {
 
   //получает ссылку на контейнер куда отрисовываем и данные о фильме
   #renderFilm = (film) => {
-    const moviePresenter = new MoviePresenter(this.#filmsListContainer, this.#handleFilmChange, this.#handleModeChange);
+    const moviePresenter = new MoviePresenter(this.#filmsListContainer, this.#handleFilmChange, this.#handleModeChange, this.#hidingPopup);
     moviePresenter.init(film);
     this.#filmPresenter.set(film.id, moviePresenter);
   }
@@ -72,6 +72,12 @@ export default class MovieListPresenter  {
   #renderNoFilms = () => {
     render(this.#filmsListContainer, this.#noFilmComponent, RenderPosition.BEFOREEND);
   }
+
+  #hidingPopup = () => {
+    if (document.body.querySelector('.film-details')) {
+      document.body.querySelector('.film-details').remove();
+    }
+  };
 
   #loadMoreButtonClickHandler = () => {
     this.#listFilms.slice(this.#renderedFilmCount, this.#renderedFilmCount + FILM_COUNT_PER_STEP)

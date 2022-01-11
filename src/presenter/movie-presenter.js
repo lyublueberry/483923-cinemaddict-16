@@ -1,6 +1,7 @@
 import PopupFilmView from '../view/film-details-popup-view.js';
 import CardFilmView from '../view/card-view.js';
 import { render, RenderPosition, replace, remove } from '../utils/render.js';
+import AbstractView from '../view/abstract-view.js';
 
 const KEYDOWN = 'keydown';
 const ESCAPE = 'Escape';
@@ -23,10 +24,13 @@ export default class MoviePresenter {
 
   #mode = Mode.DEFAULT
 
-  constructor(filmListContainer, changeData, changeMode) {
+  #removePrevPopupComponent= null;
+
+  constructor(filmListContainer, changeData, changeMode, removePrevPopupComponent) {
     this.#filmListContainer = filmListContainer;
     this.#changeData = changeData;
     this.#changeMode = changeMode;
+    this.#removePrevPopupComponent = removePrevPopupComponent;
   }
 
   init = (film) => {
@@ -59,10 +63,8 @@ export default class MoviePresenter {
       replace(this.#filmPopupComponent, prevPopupComponent);
     }
 
-    remove(prevFilmCardComponent);
+    //remove(prevFilmCardComponent);
     remove(prevPopupComponent);
-
-    //render(this.#filmListContainer.container, this.#filmComponent, RenderPosition.BEFOREEND);
   };
 
   destroy = () => {
@@ -77,14 +79,19 @@ export default class MoviePresenter {
   }
 
   #replaceCardFilmToPopup = () => {
-    replace(this.#filmPopupComponent, this.#filmComponent);
+    this.#removePrevPopupComponent();
+    const ppp = this.#filmPopupComponent instanceof AbstractView ? this.#filmPopupComponent.element : this.#filmPopupComponent;
+    document.body.appendChild(ppp);
+    document.body.classList.add('hide-overflow');
     document.addEventListener(KEYDOWN, this.#escKeyDownHandler);
     this.#changeMode();
     this.#mode = Mode.EDITING;
   };
 
   #replacePopupToCardFilm = () => {
-    replace(this.#filmComponent, this.#filmPopupComponent);
+    const ghjghj = this.#filmPopupComponent instanceof AbstractView ? this.#filmPopupComponent.element : this.#filmPopupComponent;
+    document.body.removeChild(ghjghj);
+    document.body.classList.remove('hide-overflow');
     document.removeEventListener(KEYDOWN, this.#escKeyDownHandler);
     this.#mode = Mode.DEFAULT;
   };
@@ -109,16 +116,14 @@ export default class MoviePresenter {
 
   #handleCardFilmToPopup = () => {
     this.#replaceCardFilmToPopup();
-    document.body.classList.remove('hide-overflow');
   };
 
   #handlePopupToCardFilm = () => {
     this.#replacePopupToCardFilm();
-    document.body.classList.remove('hide-overflow');
   };
 
   #handleWatchlist = () => {
-    this.#changeData({...this.#film, isWatchList: !this.#film.isWatchlist});
+    this.#changeData({...this.#film, isWatchlist: !this.#film.isWatchlist});
   }
 
   #handleWatched = () => {
