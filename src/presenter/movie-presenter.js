@@ -38,14 +38,14 @@ export default class MoviePresenter {
 
     const prevFilmCardComponent = this.#filmComponent;
     this.#filmComponent = new CardFilmView(film);
-    this.#filmComponent.setPopupClickHandler(this.#handleCardFilmToPopup);
+    this.#filmComponent.setOpenPopupHandler(this.#handleOpenPopup);
     this.#filmComponent.setWatchlistClickHandler(this.#handleWatchlist);
     this.#filmComponent.setWatchedClickHandler(this.#handleWatched);
     this.#filmComponent.setFavoriteClickHandler(this.#handleFavorite);
 
     const prevPopupComponent = this.#filmPopupComponent;
     this.#filmPopupComponent = new PopupFilmView(film);
-    this.#filmPopupComponent.setClosePopupHandler(this.#handlePopupToCardFilm);
+    this.#filmPopupComponent.setClosePopupHandler(this.#handleClosePopup);
     this.#filmPopupComponent.setWatchlistClickHandler(this.#handleWatchlist);
     this.#filmPopupComponent.setWatchedClickHandler(this.#handleWatched);
     this.#filmPopupComponent.setFavoriteClickHandler(this.#handleFavorite);
@@ -63,7 +63,7 @@ export default class MoviePresenter {
       replace(this.#filmPopupComponent, prevPopupComponent);
     }
 
-    //remove(prevFilmCardComponent);
+    remove(prevFilmCardComponent);
     remove(prevPopupComponent);
   };
 
@@ -74,11 +74,11 @@ export default class MoviePresenter {
 
   resetView = () => {
     if (this.#mode !== Mode.DEFAULT) {
-      this.#replacePopupToCardFilm();
+      this.#replaceClosePopup();
     }
   }
 
-  #replaceCardFilmToPopup = () => {
+  #replaceOpenPopup = () => {
     this.#removePrevPopupComponent();
     const popup = this.#filmPopupComponent instanceof AbstractView ? this.#filmPopupComponent.element : this.#filmPopupComponent;
     document.body.appendChild(popup);
@@ -88,7 +88,7 @@ export default class MoviePresenter {
     this.#mode = Mode.EDITING;
   };
 
-  #replacePopupToCardFilm = () => {
+  #replaceClosePopup = () => {
     const popup = this.#filmPopupComponent instanceof AbstractView ? this.#filmPopupComponent.element : this.#filmPopupComponent;
     document.body.removeChild(popup);
     document.body.classList.remove('hide-overflow');
@@ -99,27 +99,18 @@ export default class MoviePresenter {
   #escKeyDownHandler = (evt) => {
     if(evt.key === ESCAPE || evt.key === ESC) {
       evt.preventDefault();
-      this.#replacePopupToCardFilm();
-      document.removeEventListener(KEYDOWN, this.#onEscKeyDown);
+      this.#replaceClosePopup();
+      document.removeEventListener(KEYDOWN, this.#escKeyDownHandler);
       document.body.classList.remove('hide-overflow');
     }
   };
 
-  #onEscKeyDown = (evt) => {
-    if (evt.key === 'Escape' || evt.key === 'Esc') {
-      evt.preventDefault();
-      this.#replacePopupToCardFilm();
-      document.removeEventListener('keydown', this.#onEscKeyDown);
-      document.body.classList.remove('hide-overflow');
-    }
+  #handleOpenPopup = () => {
+    this.#replaceOpenPopup();
   };
 
-  #handleCardFilmToPopup = () => {
-    this.#replaceCardFilmToPopup();
-  };
-
-  #handlePopupToCardFilm = () => {
-    this.#replacePopupToCardFilm();
+  #handleClosePopup = () => {
+    this.#replaceClosePopup();
   };
 
   #handleWatchlist = () => {
