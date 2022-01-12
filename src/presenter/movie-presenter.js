@@ -1,7 +1,6 @@
 import PopupFilmView from '../view/film-details-popup-view.js';
 import CardFilmView from '../view/card-view.js';
 import { render, RenderPosition, replace, remove } from '../utils/render.js';
-import AbstractView from '../view/abstract-view.js';
 
 const KEYDOWN = 'keydown';
 const ESCAPE = 'Escape';
@@ -80,8 +79,7 @@ export default class MoviePresenter {
 
   #replaceOpenPopup = () => {
     this.#removePrevPopupComponent();
-    const popup = this.#filmPopupComponent instanceof AbstractView ? this.#filmPopupComponent.element : this.#filmPopupComponent;
-    document.body.appendChild(popup);
+    document.body.appendChild(this.#filmPopupComponent.element);
     document.body.classList.add('hide-overflow');
     document.addEventListener(KEYDOWN, this.#escKeyDownHandler);
     this.#changeMode();
@@ -89,8 +87,7 @@ export default class MoviePresenter {
   };
 
   #replaceClosePopup = () => {
-    const popup = this.#filmPopupComponent instanceof AbstractView ? this.#filmPopupComponent.element : this.#filmPopupComponent;
-    document.body.removeChild(popup);
+    document.body.removeChild(this.#filmPopupComponent.element);
     document.body.classList.remove('hide-overflow');
     document.removeEventListener(KEYDOWN, this.#escKeyDownHandler);
     this.#mode = Mode.DEFAULT;
