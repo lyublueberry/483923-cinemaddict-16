@@ -58,7 +58,7 @@ export default class MoviePresenter {
       replace(this.#filmComponent, prevFilmCardComponent);
     }
 
-    if (document.body.contains(prevPopupComponent.element)) {
+    if (this.#mode === Mode.EDITING) {
       replace(this.#filmPopupComponent, prevPopupComponent);
     }
 
@@ -79,16 +79,16 @@ export default class MoviePresenter {
 
   #replaceOpenPopup = () => {
     this.#removePrevPopupComponent();
-    document.body.appendChild(this.#filmPopupComponent.element);
     document.body.classList.add('hide-overflow');
+    document.body.appendChild(this.#filmPopupComponent.element);
     document.addEventListener(KEYDOWN, this.#escKeyDownHandler);
     this.#changeMode();
     this.#mode = Mode.EDITING;
   };
 
   #replaceClosePopup = () => {
-    document.body.removeChild(this.#filmPopupComponent.element);
     document.body.classList.remove('hide-overflow');
+    document.body.removeChild(this.#filmPopupComponent.element);
     document.removeEventListener(KEYDOWN, this.#escKeyDownHandler);
     this.#mode = Mode.DEFAULT;
   };
@@ -98,7 +98,6 @@ export default class MoviePresenter {
       evt.preventDefault();
       this.#replaceClosePopup();
       document.removeEventListener(KEYDOWN, this.#escKeyDownHandler);
-      document.body.classList.remove('hide-overflow');
     }
   };
 
