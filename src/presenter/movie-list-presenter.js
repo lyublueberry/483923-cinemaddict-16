@@ -49,11 +49,12 @@ export default class MovieListPresenter  {
 
   //получает ссылку на контейнер куда отрисовываем и данные о фильме
   #renderFilm = (film) => {
-    const moviePresenter = new MoviePresenter(this.#filmsListContainer, this.#handleFilmChange, this.#handleModeChange, this.#hidingPopup);
+    const moviePresenter = new MoviePresenter(this.#filmsListContainer, this.#handleFilmChange, this.#handleModeChange);
     moviePresenter.init(film);
     this.#filmPresenter.set(film.id, moviePresenter);
   }
 
+  //метод уведомления всех презентеров о смене режима
   #handleModeChange = () => {
     this.#filmPresenter.forEach((presenter) => presenter.resetView());
   }
@@ -73,12 +74,6 @@ export default class MovieListPresenter  {
     render(this.#filmsListContainer, this.#noFilmComponent, RenderPosition.BEFOREEND);
   }
 
-  #hidingPopup = () => {
-    if (document.body.querySelector('.film-details')) {
-      document.body.querySelector('.film-details').remove();
-    }
-  };
-
   #loadMoreButtonClickHandler = () => {
     this.#listFilms.slice(this.#renderedFilmCount, this.#renderedFilmCount + FILM_COUNT_PER_STEP)
       .forEach((film) => this.#renderFilm(film));
@@ -89,6 +84,7 @@ export default class MovieListPresenter  {
     }
   }
 
+  //обработчик изменений
   #handleFilmChange = (updateFilm) => {
     this.#listFilms = updateItem(this.#listFilms, updateFilm);
     this.#sourcedListFilms = updateItem(this.#sourcedListFilms, updateFilm);

@@ -23,26 +23,23 @@ export default class MoviePresenter {
 
   #mode = Mode.DEFAULT
 
-  #removePrevPopupComponent= null;
-
-  constructor(filmListContainer, changeData, changeMode, removePrevPopupComponent) {
+  constructor(filmListContainer, changeData, changeMode) {
     this.#filmListContainer = filmListContainer;
     this.#changeData = changeData;
     this.#changeMode = changeMode;
-    this.#removePrevPopupComponent = removePrevPopupComponent;
   }
 
   init = (film) => {
     this.#film = film;
 
-    const prevFilmCardComponent = this.#filmComponent;
+    const prevFilmCardComponent = this.#filmComponent;//запоминаем предыдущий
     this.#filmComponent = new CardFilmView(film);
     this.#filmComponent.setOpenPopupHandler(this.#handleOpenPopup);
     this.#filmComponent.setWatchlistClickHandler(this.#handleWatchlist);
     this.#filmComponent.setWatchedClickHandler(this.#handleWatched);
     this.#filmComponent.setFavoriteClickHandler(this.#handleFavorite);
 
-    const prevPopupComponent = this.#filmPopupComponent;
+    const prevPopupComponent = this.#filmPopupComponent;//запоминаем предыдущий
     this.#filmPopupComponent = new PopupFilmView(film);
     this.#filmPopupComponent.setClosePopupHandler(this.#handleClosePopup);
     this.#filmPopupComponent.setWatchlistClickHandler(this.#handleWatchlist);
@@ -66,11 +63,13 @@ export default class MoviePresenter {
     remove(prevPopupComponent);
   };
 
+  //удалить компоненты
   destroy = () => {
     remove(this.#filmComponent);
     remove(this.#filmPopupComponent);
   };
 
+  //смена режима
   resetView = () => {
     if (this.#mode !== Mode.DEFAULT) {
       this.#replaceClosePopup();
@@ -78,7 +77,7 @@ export default class MoviePresenter {
   }
 
   #replaceOpenPopup = () => {
-    this.#removePrevPopupComponent();
+    //replace(this.#filmPopupComponent, this.#filmComponent);
     document.body.classList.add('hide-overflow');
     document.body.appendChild(this.#filmPopupComponent.element);
     document.addEventListener(KEYDOWN, this.#escKeyDownHandler);
@@ -87,6 +86,7 @@ export default class MoviePresenter {
   };
 
   #replaceClosePopup = () => {
+    //replace(this.#filmComponent, this.#filmPopupComponent);
     document.body.classList.remove('hide-overflow');
     document.body.removeChild(this.#filmPopupComponent.element);
     document.removeEventListener(KEYDOWN, this.#escKeyDownHandler);
