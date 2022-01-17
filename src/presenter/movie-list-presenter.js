@@ -9,12 +9,19 @@ import ContainerFilmsView from '../view/container-films-view.js';
 import {sortFilmsByDate, sortFilmsByRating} from '../utils/film.js';
 import {SortType} from '../view/sort-view.js';
 
+import PopupFilmView from '../view/film-details-popup-view.js';
+
 import MoviePresenter from './movie-presenter.js';
 
 const FILM_COUNT_PER_STEP = 5;
 
+const KEYDOWN = 'keydown';
+const ESCAPE = 'Escape';
+const ESC = 'Esc';
 export default class MovieListPresenter  {
   #siteMainElement = null;
+
+  #filmPopupComponent = null;
 
   #sortMenuFilm = new SortMenuView();
   #noFilmComponent = new MessageFilmsListEmptyView();
@@ -49,15 +56,46 @@ export default class MovieListPresenter  {
 
   //получает ссылку на контейнер куда отрисовываем и данные о фильме
   #renderFilm = (film) => {
-    const moviePresenter = new MoviePresenter(this.#filmsListContainer, this.#handleFilmChange, this.#handleModeChange);
+    const moviePresenter = new MoviePresenter(this.#filmsListContainer, this.#handleFilmChange, this.#handleOpenPopup);
     moviePresenter.init(film);
     this.#filmPresenter.set(film.id, moviePresenter);
   }
 
-  //метод уведомления всех презентеров о смене режима
-  #handleModeChange = () => {
-    this.#filmPresenter.forEach((presenter) => presenter.resetView());
+  #renderPopup = (film) => {
+    this.#filmPopupComponent = new PopupFilmView(film);
+    this.#filmPopupComponent.setClosePopupHandler(this.#handleClosePopup);
+    document.body.classList.add('hide-overflow');
+    document.body.appendChild(this.#filmPopupComponent.element);
+    document.addEventListener(KEYDOWN, this.#escKeyDownHandler);
   }
+
+  #handleOpenPopup = (film) => {
+    if(this.#filmPopupComponent){
+      this.#replaceClosePopup();
+    }
+    this.#renderPopup(film);
+
+
+  };
+
+  #escKeyDownHandler = (evt) => {
+    if(evt.key === ESCAPE || evt.key === ESC) {
+      evt.preventDefault();
+      this.#replaceClosePopup();
+      document.removeEventListener(KEYDOWN, this.#escKeyDownHandler);
+    }
+  };
+
+  #replaceClosePopup = () => {
+    document.body.classList.remove('hide-overflow');
+    document.body.removeChild(this.#filmPopupComponent.element);
+    document.removeEventListener(KEYDOWN, this.#escKeyDownHandler);
+    this.#filmPopupComponent = null;
+  };
+
+  #handleClosePopup = () => {
+    this.#replaceClosePopup();
+  };
 
   #renderFilms = (from, to) => {
     this.#listFilms.slice(from, to).forEach((film) => this.#renderFilm(film));
@@ -88,7 +126,7 @@ export default class MovieListPresenter  {
   #handleFilmChange = (updateFilm) => {
     this.#listFilms = updateItem(this.#listFilms, updateFilm);
     this.#sourcedListFilms = updateItem(this.#sourcedListFilms, updateFilm);
-    this.#filmPresenter.get(updateFilm.id).init(updateFilm);
+    this.#filmPresenter.get(updateFilm.id).init(updateFilm, true);
   }
 
   #sortFilms = (sortType) => {

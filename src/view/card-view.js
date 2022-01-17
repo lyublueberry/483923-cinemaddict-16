@@ -91,6 +91,6 @@ export default class CardFilmView extends AbstractView {
 
   #popupOpenClickHandler = (evt) => {
     evt.preventDefault();
-    this._callback.popupOpenClick();
+    this._callback.popupOpenClick(this.#film);
   }
 }
