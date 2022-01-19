@@ -2,7 +2,7 @@
 import MessageFilmsListEmptyView from '../view/no-films-view.js';
 import ContainerCardsView from '../view/container-card-view.js';
 import BtnShowMoreView from '../view/btn-show-more.js';
-import {render, RenderPosition, remove, updateItem} from '../utils/render.js';
+import {render, RenderPosition, remove, updateItem, replace} from '../utils/render.js';
 import FilterView from '../view/site-menu-view.js';
 import SortMenuView from '../view/sort-view.js';
 import ContainerFilmsView from '../view/container-films-view.js';
@@ -22,7 +22,6 @@ export default class MovieListPresenter  {
   #siteMainElement = null;
 
   #filmPopupComponent = null;
-
   #sortMenuFilm = new SortMenuView();
   #noFilmComponent = new MessageFilmsListEmptyView();
   #filmsListContainer  = new ContainerCardsView();//куда поместим все карточки
@@ -62,11 +61,38 @@ export default class MovieListPresenter  {
   }
 
   #renderPopup = (film) => {
+    let scrollTop = 0;
+    if(this.#filmPopupComponent) {
+      scrollTop = this.#filmPopupComponent.element.scrollTop;
+      this.#replaceClosePopup();
+    }
     this.#filmPopupComponent = new PopupFilmView(film);
     this.#filmPopupComponent.setClosePopupHandler(this.#handleClosePopup);
     document.body.classList.add('hide-overflow');
     document.body.appendChild(this.#filmPopupComponent.element);
     document.addEventListener(KEYDOWN, this.#escKeyDownHandler);
+    this.#filmPopupComponent.setWatchlistClickHandler(this.#watchlistClickHandler);
+    this.#filmPopupComponent.setWatchedClickHandler(this.#watchedClickHandler);
+    this.#filmPopupComponent.setFavoriteClickHandler(this.#favoriteClickHandler);
+    this.#filmPopupComponent.element.scrollTop = scrollTop;
+  }
+
+  #watchlistClickHandler = (film) => {
+    const updateFilm = {...film, isWatchlist: !film.isWatchlist};
+    this.#handleFilmChange(updateFilm);
+    this.#renderPopup(updateFilm);
+  }
+
+  #watchedClickHandler = (film) => {
+    const updateFilm = {...film, isWatched: !film.isWatched};
+    this.#handleFilmChange(updateFilm);
+    this.#renderPopup(updateFilm);
+  }
+
+  #favoriteClickHandler = (film) => {
+    const updateFilm = {...film, isFavorites: !film.isFavorites};
+    this.#handleFilmChange(updateFilm);
+    this.#renderPopup(updateFilm);
   }
 
   #handleOpenPopup = (film) => {
@@ -74,8 +100,6 @@ export default class MovieListPresenter  {
       this.#replaceClosePopup();
     }
     this.#renderPopup(film);
-
-
   };
 
   #escKeyDownHandler = (evt) => {
@@ -88,7 +112,7 @@ export default class MovieListPresenter  {
 
   #replaceClosePopup = () => {
     document.body.classList.remove('hide-overflow');
-    document.body.removeChild(this.#filmPopupComponent.element);
+    remove(this.#filmPopupComponent);
     document.removeEventListener(KEYDOWN, this.#escKeyDownHandler);
     this.#filmPopupComponent = null;
   };
@@ -126,7 +150,7 @@ export default class MovieListPresenter  {
   #handleFilmChange = (updateFilm) => {
     this.#listFilms = updateItem(this.#listFilms, updateFilm);
     this.#sourcedListFilms = updateItem(this.#sourcedListFilms, updateFilm);
-    this.#filmPresenter.get(updateFilm.id).init(updateFilm, true);
+    this.#filmPresenter.get(updateFilm.id).init(updateFilm);
   }
 
   #sortFilms = (sortType) => {

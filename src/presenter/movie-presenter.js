@@ -1,15 +1,13 @@
 import CardFilmView from '../view/card-view.js';
-import { remove, render, RenderPosition } from '../utils/render.js';
+import { remove, render, RenderPosition, replace } from '../utils/render.js';
 
 export default class MoviePresenter {
   #filmListContainer = null;
   #handleOpenPopup = null;
-
   #filmComponent = null;
-  #filmPopupComponent = null;
-
   #film = null;
   #changeData = null;
+  #prevFilmCardComponent = null;
 
   constructor(filmListContainer, changeData, handleOpenPopup) {
     this.#filmListContainer = filmListContainer;
@@ -27,24 +25,18 @@ export default class MoviePresenter {
     this.#filmComponent.setFavoriteClickHandler(this.#handleFavorite);
     render(this.#filmListContainer.container, this.#filmComponent, RenderPosition.BEFOREEND);
 
-/*
-    if (prevFilmCardComponent === null || prevPopupComponent === null) {
-      return;
-    } */
-
-/*     if (this.#mode === Mode.DEFAULT) {
-      replace(this.#filmComponent, prevFilmCardComponent);
+    if (this.#prevFilmCardComponent === null) {
+      render(this.#filmListContainer.container, this.#filmComponent, RenderPosition.BEFOREEND);
     }
-
-    if (this.#mode === Mode.EDITING) {
-      replace(this.#filmPopupComponent, prevPopupComponent);
-    } */
+    else {
+      replace(this.#filmComponent, this.#prevFilmCardComponent);
+    }
+    this.#prevFilmCardComponent = this.#filmComponent;
   };
 
   //удалить компоненты
   destroy = () => {
     remove(this.#filmComponent);
-    remove(this.#filmPopupComponent);
   };
 
   #handleWatchlist = () => {
