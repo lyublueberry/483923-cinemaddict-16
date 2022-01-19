@@ -2,7 +2,7 @@
 import MessageFilmsListEmptyView from '../view/no-films-view.js';
 import ContainerCardsView from '../view/container-card-view.js';
 import BtnShowMoreView from '../view/btn-show-more.js';
-import {render, RenderPosition, remove, updateItem, replace} from '../utils/render.js';
+import {render, RenderPosition, remove, updateItem} from '../utils/render.js';
 import FilterView from '../view/site-menu-view.js';
 import SortMenuView from '../view/sort-view.js';
 import ContainerFilmsView from '../view/container-films-view.js';
