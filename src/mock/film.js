@@ -1,6 +1,7 @@
 import { generateRandomElement, getRandomInteger, generateRandomBoolean, randomArrayValues } from '../utils/common.js';
 import { generateCommentFilm } from '../mock/comments.js';
 import { generateDate } from '../utils/film.js';
+import { nanoid } from 'nanoid';
 
 const POSTER_PICTURES_FILM = ['./images/posters/made-for-each-other.png', './images/posters/popeye-meets-sinbad.png',
   './images/posters/sagebrush-trail.jpg', './images/posters/the-man-with-the-golden-arm.jpg',
@@ -19,6 +20,7 @@ const ACTORS_FILM = ['Том Хэнкс', 'Робин Райт', 'Салли Ф�
 const COUNTRY = ['Russia', 'USA', 'Spain'];
 
 export const generateCardFilm = () => ({
+  id: nanoid(),
   poster: generateRandomElement(POSTER_PICTURES_FILM),
   filmName: generateRandomElement(NAME_FILM),
   rating: `${getRandomInteger(1, 9)}.${getRandomInteger(0, 9)}`,

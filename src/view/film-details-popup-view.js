@@ -23,15 +23,14 @@ const createFilmDetailsPopupTemplates = (films) => {
     genres,
     description,
     ageRating,
-    btnAddWatchlist,
-    btnAlreadyWatched,
-    btnAddFavorites,
+    isWatchlist,
+    isWatched,
+    isFavorites,
     comments
   } = films;
 
-  const addWatchlistClassName = btnAddWatchlist ? 'film-details__control-button--active' : '';
-  const markWatchedClassName = btnAlreadyWatched ? 'film-details__control-button--active' : '';
-  const markFavorite = btnAddFavorites ? 'film-details__control-button--active' : '';
+
+  const activeClassName = (item) => item ? 'film-details__control-button--active' : '';
 
   const templateGenres = genres.map((gen) => `<span class="film-details__genre">${(gen)}</span>`).join('');
   const templateComments = comments.map((comment) => new CommentFilmView(comment).template).join('');
@@ -99,9 +98,9 @@ const createFilmDetailsPopupTemplates = (films) => {
       </div>
 
       <section class="film-details__controls">
-        <button type="button" class="film-details__control-button ${addWatchlistClassName} film-details__control-button--watchlist" id="watchlist" name="watchlist">Add to watchlist</button>
-        <button type="button" class="film-details__control-button ${markWatchedClassName} film-details__control-button--active film-details__control-button--watched" id="watched" name="watched">Already watched</button>
-        <button type="button" class="film-details__control-button ${markFavorite} film-details__control-button--favorite" id="favorite" name="favorite">Add to favorites</button>
+        <button type="button" class="film-details__control-button ${activeClassName(isWatchlist)} film-details__control-button--watchlist" id="watchlist" name="watchlist">Add to watchlist</button>
+        <button type="button" class="film-details__control-button ${activeClassName(isWatched)} film-details__control-button--watched" id="watched" name="watched">Already watched</button>
+        <button type="button" class="film-details__control-button ${activeClassName(isFavorites)} film-details__control-button--favorite" id="favorite" name="favorite">Add to favorites</button>
       </section>
     </div>
 
@@ -165,8 +164,38 @@ export default class PopupFilmView extends AbstractView {
     this.element.querySelector('.film-details__close-btn').addEventListener('click', this.#closeBtnPopup);
   }
 
+  setWatchlistClickHandler = (callback) => {
+    this._callback.watchlistClick = callback;
+    this.element.querySelector('.film-details__control-button--watchlist').addEventListener('click', this.#watchlistClickHandler);
+  }
+
+  setWatchedClickHandler = (callback) => {
+    this._callback.watchedClick = callback;
+    this.element.querySelector('.film-details__control-button--watched').addEventListener('click', this.#watchedClickHandler);
+  }
+
+  setFavoriteClickHandler = (callback) => {
+    this._callback.favoriteClick = callback;
+    this.element.querySelector('.film-details__control-button--favorite').addEventListener('click', this.#favoriteClickHandler);
+  }
+
   #closeBtnPopup = (evt) => {
     evt.preventDefault();
     this._callback.closeBtn();
+  }
+
+  #watchlistClickHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.watchlistClick(this.#film);
+  }
+
+  #watchedClickHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.watchedClick(this.#film);
+  }
+
+  #favoriteClickHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.favoriteClick(this.#film);
   }
 }
