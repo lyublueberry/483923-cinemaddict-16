@@ -207,8 +207,9 @@ export default class MovieListPresenter  {
   #renderBoard = () => {
     if (this.#listFilms.length === 0) {
       this.#renderNoFilms();
+    } else {
+      this.#renderSortMenuFilm();
     }
-    this.#renderSortMenuFilm();
     this.#renderFilmsList();
   }
 }
