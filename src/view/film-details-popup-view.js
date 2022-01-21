@@ -6,7 +6,6 @@ import SmartView from './smart-view.js';
 
 const dateFormatRelise = 'DD MMMM YYYY';
 
-
 const createFilmDetailsPopupTemplates = (data) => {
   const {
     poster,
@@ -116,7 +115,7 @@ const createFilmDetailsPopupTemplates = (data) => {
 
         <div class="film-details__new-comment">
           <div class="film-details__add-emoji-label">
-          <img src="./images/emoji/${emoji}.png" width="55" height="55" alt="emoji-${emoji}">
+          ${emoji ? `<img src="./images/emoji/${emoji}.png" width="55" height="55" alt="emoji-${emoji}">` : ''}
           </div>
 
           <label class="film-details__comment-label">
@@ -158,22 +157,20 @@ export default class PopupFilmView extends SmartView {
     this.#setInnerHandlers();
   }
 
-  #inputEmojiHandler = () => {
-    const formElement = this.element.querySelector('.film-details__inner');
-    console.log(formElement.elements['comment-emoji'].value);
+  #inputEmojiHandler = (evt) => {
+    evt.preventDefault();
+    this.updateData({emoji:evt.target.value});
   };
 
   #inputMessageHandler = (evt) => {
-    console.log(evt.target.value);
+    evt.preventDefault();
+    this.updateData({message:evt.target.value}, true);
   }
 
   #setInnerHandlers = () => {
-    //через делегирование событий
-    this.element.querySelectorAll('.film-details__emoji-item')[0].addEventListener('input', this.#inputEmojiHandler);
-    this.element.querySelectorAll('.film-details__emoji-item')[1].addEventListener('input', this.#inputEmojiHandler);
-    this.element.querySelectorAll('.film-details__emoji-item')[2].addEventListener('input', this.#inputEmojiHandler);
-    this.element.querySelectorAll('.film-details__emoji-item')[3].addEventListener('input', this.#inputEmojiHandler);
+    this.element.querySelector('.film-details__emoji-list').addEventListener('change', this.#inputEmojiHandler);
     this.element.querySelector('.film-details__comment-input').addEventListener('input', this.#inputMessageHandler);
+    this.element.addEventListener('scroll', this.#scrollPositionHandler);
   }
 
   get template() {
@@ -182,8 +179,8 @@ export default class PopupFilmView extends SmartView {
   //данные с сервера в данные для попапа
 
   static parseFilmToData = (film) => ({...film,
-    emoji: 'angry',
-    message: 'dfdsfdsf',
+    emoji: '',
+    message: '',
   });
 
   //данные для попапа в данные для сервера
@@ -196,11 +193,12 @@ export default class PopupFilmView extends SmartView {
 
   restoreHandlers = () => {
     this.#setInnerHandlers();
+    this.setClosePopupHandler(this._callback.click);
   }
 
   setClosePopupHandler = (callback) => {
-    this._callback.closeBtn = callback;
-    this.element.querySelector('.film-details__close-btn').addEventListener('click', this.#closeBtnPopup);
+    this._callback.click = callback;
+    this.element.querySelector('.film-details__close-btn').addEventListener('click', this.#closeClickHandler);
   }
 
   setWatchlistClickHandler = (callback) => {
@@ -218,9 +216,15 @@ export default class PopupFilmView extends SmartView {
     this.element.querySelector('.film-details__control-button--favorite').addEventListener('click', this.#favoriteClickHandler);
   }
 
-  #closeBtnPopup = (evt) => {
+  #closeClickHandler = (evt) => {
     evt.preventDefault();
-    this._callback.closeBtn();
+    this._callback.click();
+  }
+
+  #scrollPositionHandler = () => {
+    this.updateData({
+      scrollPosition: this.element.scrollTop,
+    }, true);
   }
 
   #watchlistClickHandler = (evt) => {

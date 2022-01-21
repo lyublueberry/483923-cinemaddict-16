@@ -61,7 +61,7 @@ export default class MovieListPresenter  {
   }
 
   #renderPopup = (film) => {
-    let scrollTop = 0;
+    let scrollTop;
     if(this.#filmPopupComponent) {
       scrollTop = this.#filmPopupComponent.element.scrollTop;
       this.#replaceClosePopup();
