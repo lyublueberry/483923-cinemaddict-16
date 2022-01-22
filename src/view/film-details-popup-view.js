@@ -157,6 +157,27 @@ export default class PopupFilmView extends SmartView {
     this.#setInnerHandlers();
   }
 
+  get template() {
+    return createFilmDetailsPopupTemplates(this._data);
+  }
+
+  reset = (film) => {
+    this.updateData(PopupFilmView.parseFilmToData(film));
+  };
+
+  restoreHandlers = () => {
+    this.#setInnerHandlers();
+    this.setClosePopupHandler(this._callback.click);
+    this.setFavoriteClickHandler(this._callback.favoriteClick);
+    this.setWatchedClickHandler(this._callback.watchedClick);
+    this.setWatchlistClickHandler(this._callback.watchlistClick);
+  };
+
+  #setInnerHandlers = () => {
+    this.element.querySelector('.film-details__emoji-list').addEventListener('change', this.#inputEmojiHandler);
+    this.element.querySelector('.film-details__comment-input').addEventListener('input', this.#inputMessageHandler);
+  };
+
   #inputEmojiHandler = (evt) => {
     evt.preventDefault();
     this.updateData({emoji:evt.target.value});
@@ -165,17 +186,8 @@ export default class PopupFilmView extends SmartView {
   #inputMessageHandler = (evt) => {
     evt.preventDefault();
     this.updateData({message:evt.target.value}, true);
-  }
+  };
 
-  #setInnerHandlers = () => {
-    this.element.querySelector('.film-details__emoji-list').addEventListener('change', this.#inputEmojiHandler);
-    this.element.querySelector('.film-details__comment-input').addEventListener('input', this.#inputMessageHandler);
-    this.element.addEventListener('scroll', this.#scrollPositionHandler);
-  }
-
-  get template() {
-    return createFilmDetailsPopupTemplates(this._data);
-  }
   //данные с сервера в данные для попапа
 
   static parseFilmToData = (film) => ({...film,
@@ -189,48 +201,37 @@ export default class PopupFilmView extends SmartView {
     delete film.emoji;
     delete film.message;
     return film;
-  }
-
-  restoreHandlers = () => {
-    this.#setInnerHandlers();
-    this.setClosePopupHandler(this._callback.click);
-  }
+  };
 
   setClosePopupHandler = (callback) => {
     this._callback.click = callback;
     this.element.querySelector('.film-details__close-btn').addEventListener('click', this.#closeClickHandler);
-  }
+  };
 
   setWatchlistClickHandler = (callback) => {
     this._callback.watchlistClick = callback;
     this.element.querySelector('.film-details__control-button--watchlist').addEventListener('click', this.#watchlistClickHandler);
-  }
+  };
 
   setWatchedClickHandler = (callback) => {
     this._callback.watchedClick = callback;
     this.element.querySelector('.film-details__control-button--watched').addEventListener('click', this.#watchedClickHandler);
-  }
+  };
 
   setFavoriteClickHandler = (callback) => {
     this._callback.favoriteClick = callback;
     this.element.querySelector('.film-details__control-button--favorite').addEventListener('click', this.#favoriteClickHandler);
-  }
+  };
 
   #closeClickHandler = (evt) => {
     evt.preventDefault();
     this._callback.click();
-  }
-
-  #scrollPositionHandler = () => {
-    this.updateData({
-      scrollPosition: this.element.scrollTop,
-    }, true);
-  }
+  };
 
   #watchlistClickHandler = (evt) => {
     evt.preventDefault();
     this._callback.watchlistClick(this._data);
-  }
+  };
 
   #watchedClickHandler = (evt) => {
     evt.preventDefault();
@@ -240,5 +241,5 @@ export default class PopupFilmView extends SmartView {
   #favoriteClickHandler = (evt) => {
     evt.preventDefault();
     this._callback.favoriteClick(this._data);
-  }
+  };
 }
