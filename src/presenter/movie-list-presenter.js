@@ -41,6 +41,24 @@ export default class MovieListPresenter  {
   constructor(siteMainElement, filmsModel) {
     this.#siteMainElement = siteMainElement;
     this.#filmsModel = filmsModel;
+
+    this.#filmsModel.addObserver(this.#handleModelEvent);
+  }
+
+  #handleViewAction = (actionType, updateType, update) => {
+    console.log(actionType, updateType, update);
+    // Здесь будем вызывать обновление модели.
+    // actionType - действие пользователя, нужно чтобы понять, какой метод модели вызвать
+    // updateType - тип изменений, нужно чтобы понять, что после нужно обновить
+    // update - обновленные данные
+  }
+
+  #handleModelEvent = (updateType, data) => {
+    console.log(updateType, data);
+    // В зависимости от типа изменений решаем, что делать:
+    // - обновить часть списка (например, когда поменялось описание)
+    // - обновить список (например, когда задача ушла в архив)
+    // - обновить всю доску (например, при переключении фильтра)
   }
 
   //метод инициализации - начала работы модуля
@@ -67,7 +85,7 @@ export default class MovieListPresenter  {
 
   //получает ссылку на контейнер куда отрисовываем и данные о фильме
   #renderFilm = (film) => {
-    const moviePresenter = new MoviePresenter(this.#filmsListContainer, this.#handleFilmChange, this.#handleOpenPopup);
+    const moviePresenter = new MoviePresenter(this.#filmsListContainer, this.#handleViewAction, this.#handleOpenPopup);
     moviePresenter.init(film);
     this.#filmPresenter.set(film.id, moviePresenter);
   }
@@ -190,7 +208,6 @@ export default class MovieListPresenter  {
 
   #renderFilmsList = () => {
     render(this.#generalContainerFilms, this.#filmsListContainer, RenderPosition.BEFOREEND);
-    //this.#renderFilms(0, Math.min(this.#listFilms.length, FILM_COUNT_PER_STEP));
     const filmCount = this.films.length;
     const films = this.films.slice(0, Math.min(filmCount, FILM_COUNT_PER_STEP));
     this.#renderFilms(films);

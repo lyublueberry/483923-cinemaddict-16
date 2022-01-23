@@ -1,6 +1,18 @@
 import CardFilmView from '../view/card-view.js';
 import { remove, render, RenderPosition, replace } from '../utils/render.js';
 
+const UserAction = {
+  ADD_COMMENT: 'ADD_COMMENT',
+  DELETE_COMMENT: 'DELETE_COMMENT',
+  UPDATE_FILM: 'UPDATE_FILM',
+};
+
+const UpdateType = {
+  PATCH: 'PATCH',
+  MINOR: 'MINOR',
+  MAJOR: 'MAJOR',
+};
+
 export default class MoviePresenter {
   #filmListContainer = null;
   #handleOpenPopup = null;
@@ -40,14 +52,14 @@ export default class MoviePresenter {
   };
 
   #handleWatchlist = () => {
-    this.#changeData({...this.#film, isWatchlist: !this.#film.isWatchlist});
+    this.#changeData(UserAction.UPDATE_FILM, UpdateType.MINOR, {...this.#film, isWatchlist: !this.#film.isWatchlist});
   }
 
   #handleWatched = () => {
-    this.#changeData({...this.#film, isWatched: !this.#film.isWatched});
+    this.#changeData(UserAction.UPDATE_FILM, UpdateType.MINOR, {...this.#film, isWatched: !this.#film.isWatched});
   }
 
   #handleFavorite = () => {
-    this.#changeData({...this.#film, isFavorites: !this.#film.isFavorites});
+    this.#changeData(UserAction.UPDATE_FILM, UpdateType.MINOR, {...this.#film, isFavorites: !this.#film.isFavorites});
   }
 }
