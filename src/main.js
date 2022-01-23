@@ -4,6 +4,7 @@ import ProfileRatingView from './view/profile-rating-view.js';
 import { generateCardFilm } from './mock/film.js';
 import { generateFilter } from './mock/filter.js';
 import MovieListPresenter from './presenter/movie-list-presenter.js';
+import FilmsModel from './model/films-model.js';
 
 const headerMainElement = document.querySelector('.header');
 
@@ -17,7 +18,10 @@ const FILM_CARD_COUNT = 20;
 const films = Array.from({length: FILM_CARD_COUNT}, generateCardFilm);
 const filters = generateFilter(films);
 
-const movieListPresenter = new MovieListPresenter(siteMainElement);
+const filmsModel = new FilmsModel();
+filmsModel.films = films;
+
+const movieListPresenter = new MovieListPresenter(siteMainElement, filmsModel);
 movieListPresenter.init(films, filters);
 
 const footerMainElement = document.querySelector('.footer');
