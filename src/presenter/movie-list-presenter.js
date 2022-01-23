@@ -15,6 +15,18 @@ import MoviePresenter from './movie-presenter.js';
 
 const FILM_COUNT_PER_STEP = 5;
 
+const UserAction = {
+  ADD_COMMENT: 'ADD_COMMENT',
+  DELETE_COMMENT: 'DELETE_COMMENT',
+  UPDATE_FILM: 'UPDATE_FILM',
+};
+
+const UpdateType = {
+  PATCH: 'PATCH',
+  MINOR: 'MINOR',
+  MAJOR: 'MAJOR',
+};
+
 const KEYDOWN = 'keydown';
 const ESCAPE = 'Escape';
 const ESC = 'Esc';
@@ -51,6 +63,17 @@ export default class MovieListPresenter  {
     // actionType - действие пользователя, нужно чтобы понять, какой метод модели вызвать
     // updateType - тип изменений, нужно чтобы понять, что после нужно обновить
     // update - обновленные данные
+    switch (actionType) {
+      case UserAction.UPDATE_FILM:
+        this.#filmsModel.updateFilm(updateType, update);
+        break;
+      case UserAction.ADD_COMMENT:
+        this.#filmsModel.addFilm(updateType, update);
+        break;
+      case UserAction.DELETE_COMMENT:
+        this.#filmsModel.deleteFilm(updateType, update);
+        break;
+    }
   }
 
   #handleModelEvent = (updateType, data) => {
@@ -59,6 +82,19 @@ export default class MovieListPresenter  {
     // - обновить часть списка (например, когда поменялось описание)
     // - обновить список (например, когда задача ушла в архив)
     // - обновить всю доску (например, при переключении фильтра)
+    switch (updateType) {
+      case UpdateType.PATCH:
+        // - обновить часть списка (например, когда поменялось описание)
+
+        break;
+      case UpdateType.MINOR:
+        this.#filmPresenter.get(data.id).init(data);
+        // - обновить список (например, когда задача ушла в архив)
+        break;
+      case UpdateType.MAJOR:
+        // - обновить всю доску (например, при переключении фильтра)
+        break;
+    }
   }
 
   //метод инициализации - начала работы модуля
