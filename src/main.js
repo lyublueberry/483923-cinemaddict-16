@@ -22,7 +22,7 @@ const filmsModel = new FilmsModel();
 filmsModel.films = films;
 
 const movieListPresenter = new MovieListPresenter(siteMainElement, filmsModel);
-movieListPresenter.init(films, filters);
+movieListPresenter.init(filters);
 
 const footerMainElement = document.querySelector('.footer');
 const statisticsView = new StatisticsView();

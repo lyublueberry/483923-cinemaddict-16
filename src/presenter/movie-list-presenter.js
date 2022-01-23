@@ -2,7 +2,7 @@
 import MessageFilmsListEmptyView from '../view/no-films-view.js';
 import ContainerCardsView from '../view/container-card-view.js';
 import BtnShowMoreView from '../view/btn-show-more.js';
-import {render, RenderPosition, remove, updateItem} from '../utils/render.js';
+import {render, RenderPosition, remove} from '../utils/render.js';
 import FilterView from '../view/site-menu-view.js';
 import SortMenuView from '../view/sort-view.js';
 import ContainerFilmsView from '../view/container-films-view.js';
@@ -29,13 +29,13 @@ export default class MovieListPresenter  {
   #loadMoreButtonComponent  = new BtnShowMoreView();
   #generalContainerFilms = new ContainerFilmsView();
 
-  #listFilms = []; //фильмы
+  //#listFilms = []; //фильмы
   #filters = [];
   #renderedFilmCount = FILM_COUNT_PER_STEP;
   #filmPresenter = new Map();
 
   #currentSortType = SortType.DEFAULT;
-  #sourcedListFilms = [];
+  //#sourcedListFilms = [];
 
   //здесь передаем куда этот контейнер надо встроить
   constructor(siteMainElement, filmsModel) {
@@ -45,10 +45,10 @@ export default class MovieListPresenter  {
 
   //метод инициализации - начала работы модуля
   init = (listFilms, filters) => {
-    this.#listFilms = [...listFilms];
+    //this.#listFilms = [...listFilms];
     this.#filters = [...filters];
 
-    this.#sourcedListFilms = [...listFilms];
+    //this.#sourcedListFilms = [...listFilms];
 
     render(this.#siteMainElement, this.#generalContainerFilms, RenderPosition.BEFOREEND);
     this.#renderBoard();
@@ -56,6 +56,12 @@ export default class MovieListPresenter  {
   }
 
   get films() {
+    switch (this.#currentSortType) {
+      case SortType.BY_DATE:
+        return [...this.#filmsModel.films].sort(sortFilmsByDate);
+      case SortType.BY_RATING:
+        return [...this.#filmsModel.films].sort(sortFilmsByRating);
+    }
     return this.#filmsModel.films;
   }
 
@@ -127,8 +133,8 @@ export default class MovieListPresenter  {
     this.#replaceClosePopup();
   };
 
-  #renderFilms = (from, to) => {
-    this.#listFilms.slice(from, to).forEach((film) => this.#renderFilm(film));
+  #renderFilms = (films) => {
+    films.forEach((film) => this.#renderFilm(film));
   }
 
   #clearFilmList = () => {
@@ -142,46 +148,26 @@ export default class MovieListPresenter  {
     render(this.#filmsListContainer, this.#noFilmComponent, RenderPosition.BEFOREEND);
   }
 
-  #loadMoreButtonClickHandler = () => {
-    this.#listFilms.slice(this.#renderedFilmCount, this.#renderedFilmCount + FILM_COUNT_PER_STEP)
-      .forEach((film) => this.#renderFilm(film));
-    this.#renderedFilmCount += FILM_COUNT_PER_STEP;
+  #handleLoadMoreButtonClick  = () => {
+    const filmCount = this.films.length;
+    const newRenderedFilmCount = Math.min(filmCount, this.#renderedFilmCount + FILM_COUNT_PER_STEP);
+    const films = this.films.slice(this.#renderedFilmCount, newRenderedFilmCount);
+    this.#renderFilms(films);
+    this.#renderedFilmCount = newRenderedFilmCount;
 
-    if (this.#renderedFilmCount >= this.#listFilms.length) {
+    if (this.#renderedFilmCount >= this.filmCount) {
       remove(this.#loadMoreButtonComponent);
     }
   }
 
   //обработчик изменений
   #handleFilmChange = (updateFilm) => {
-    this.#listFilms = updateItem(this.#listFilms, updateFilm);
-    this.#sourcedListFilms = updateItem(this.#sourcedListFilms, updateFilm);
     this.#filmPresenter.get(updateFilm.id).init(updateFilm);
-  }
-
-  #sortFilms = (sortType) => {
-    // 2. Этот исходный массив необходим,
-    // потому что для сортировки мы будем мутировать
-    // массив в свойстве listFilms
-    switch (sortType) {
-      case SortType.BY_DATE:
-        this.#listFilms.sort(sortFilmsByDate);
-        break;
-      case SortType.BY_RATING:
-        this.#listFilms.sort(sortFilmsByRating);
-        break;
-      default:
-        // 3. А когда пользователь захочет "вернуть всё, как было",
-        // мы просто запишем в listFilms исходный массив
-        this.#listFilms = [...this.#sourcedListFilms];
-    }
-
-    this.#currentSortType = sortType;
   }
 
   #renderShowMoreButton = () => {
     render(this.#filmsListContainer, this.#loadMoreButtonComponent, RenderPosition.BEFOREEND);
-    this.#loadMoreButtonComponent.setClickHandler(this.#loadMoreButtonClickHandler);
+    this.#loadMoreButtonComponent.setClickHandler(this.#handleLoadMoreButtonClick);
   }
 
   #renderSortMenuFilm = () => {
@@ -195,7 +181,7 @@ export default class MovieListPresenter  {
       return;
     }
 
-    this.#sortFilms(sortType);
+    this.#currentSortType = sortType;
     // - Очищаем список
     // - Рендерим список заново
     this.#clearFilmList();
@@ -204,14 +190,17 @@ export default class MovieListPresenter  {
 
   #renderFilmsList = () => {
     render(this.#generalContainerFilms, this.#filmsListContainer, RenderPosition.BEFOREEND);
-    this.#renderFilms(0, Math.min(this.#listFilms.length, FILM_COUNT_PER_STEP));
-    if (this.#listFilms.length > FILM_COUNT_PER_STEP) {
+    //this.#renderFilms(0, Math.min(this.#listFilms.length, FILM_COUNT_PER_STEP));
+    const filmCount = this.films.length;
+    const films = this.films.slice(0, Math.min(filmCount, FILM_COUNT_PER_STEP));
+    this.#renderFilms(films);
+    if (filmCount > FILM_COUNT_PER_STEP) {
       this.#renderShowMoreButton();
     }
   }
 
   #renderBoard = () => {
-    if (this.#listFilms.length === 0) {
+    if (this.films.length === 0) {
       this.#renderNoFilms();
     } else {
       this.#renderSortMenuFilm();
