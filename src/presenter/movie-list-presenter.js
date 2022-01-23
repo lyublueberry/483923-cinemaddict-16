@@ -20,6 +20,7 @@ const ESCAPE = 'Escape';
 const ESC = 'Esc';
 export default class MovieListPresenter  {
   #siteMainElement = null;
+  #filmsModel = null;
 
   #filmPopupComponent = null;
   #sortMenuFilm = new SortMenuView();
@@ -37,8 +38,9 @@ export default class MovieListPresenter  {
   #sourcedListFilms = [];
 
   //здесь передаем куда этот контейнер надо встроить
-  constructor(siteMainElement) {
+  constructor(siteMainElement, filmsModel) {
     this.#siteMainElement = siteMainElement;
+    this.#filmsModel = filmsModel;
   }
 
   //метод инициализации - начала работы модуля
@@ -51,6 +53,10 @@ export default class MovieListPresenter  {
     render(this.#siteMainElement, this.#generalContainerFilms, RenderPosition.BEFOREEND);
     this.#renderBoard();
     render(this.#siteMainElement, new FilterView(filters), RenderPosition.AFTERBEGIN); //меню
+  }
+
+  get films() {
+    return this.#filmsModel.films;
   }
 
   //получает ссылку на контейнер куда отрисовываем и данные о фильме
