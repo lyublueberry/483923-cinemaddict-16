@@ -1,5 +1,5 @@
 import { generateRandomElement, getRandomInteger, generateRandomBoolean, randomArrayValues } from '../utils/common.js';
-import { generateCommentFilm } from '../mock/comments.js';
+
 import { generateDate } from '../utils/film.js';
 import { nanoid } from 'nanoid';
 
@@ -19,6 +19,14 @@ const SCREENWRITERS_FILM= ['Эрик Рот', 'Уинстон Грум', 'Фрэ
 const ACTORS_FILM = ['Том Хэнкс', 'Робин Райт', 'Салли Филд'];
 const COUNTRY = ['Russia', 'USA', 'Spain'];
 
+const MIN_COMMENTS_COUNT = 0;
+const MAX_COMMENTS_COUNT = 5;
+const generateFilmCommentsIds = () => {
+  const commentsCount = getRandomInteger(MIN_COMMENTS_COUNT, MAX_COMMENTS_COUNT);
+  return Array.from({ length: commentsCount }, () => nanoid());
+};
+
+
 export const generateCardFilm = () => ({
   id: nanoid(),
   poster: generateRandomElement(POSTER_PICTURES_FILM),
@@ -28,7 +36,7 @@ export const generateCardFilm = () => ({
   genre: generateRandomElement(GENRE_FILM),
   genres: randomArrayValues(GENRE_FILM),
   description: generateRandomElement(DESCRIPTION_FILM_SHORT),
-  countComment: getRandomInteger(0, 100),
+  // countComment: getRandomInteger(0, 100),
   originalName: generateRandomElement(NAME_FILM),
   director:generateRandomElement(DIRECTOR_FILM),
   screenwriters: randomArrayValues(SCREENWRITERS_FILM),
@@ -39,7 +47,7 @@ export const generateCardFilm = () => ({
   isWatchlist: generateRandomBoolean(),
   isWatched: generateRandomBoolean(),
   isFavorites: generateRandomBoolean(),
-  comments: Array.from({length:getRandomInteger(1, 5)}, generateCommentFilm)
+  comments: generateFilmCommentsIds()
 });
 
 export {POSTER_PICTURES_FILM, NAME_FILM, GENRE_FILM, DESCRIPTION_FILM_SHORT};

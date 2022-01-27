@@ -6,7 +6,7 @@ import SmartView from './smart-view.js';
 
 const dateFormatRelise = 'DD MMMM YYYY';
 
-const createFilmDetailsPopupTemplates = (data) => {
+const createFilmDetailsPopupTemplates = (filmData, comments) => {
   const {
     poster,
     filmName,
@@ -18,22 +18,22 @@ const createFilmDetailsPopupTemplates = (data) => {
     date,
     duration,
     country,
-    countComment,
     genres,
     description,
     ageRating,
     isWatchlist,
     isWatched,
     isFavorites,
-    comments,
     emoji,
     message
-  } = data;
+  } = filmData;
 
+  console.log({ filmData, comments });
 
   const activeClassName = (item) => item ? 'film-details__control-button--active' : '';
 
   const templateGenres = genres.map((gen) => `<span class="film-details__genre">${(gen)}</span>`).join('');
+
   const templateComments = comments.map((comment) => new CommentFilmView(comment).template).join('');
 
   return `<section class="film-details">
@@ -107,7 +107,7 @@ const createFilmDetailsPopupTemplates = (data) => {
 
     <div class="film-details__bottom-container">
       <section class="film-details__comments-wrap">
-        <h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">${countComment}</span></h3>
+        <h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">${comments.length}</span></h3>
 
         <ul class="film-details__comments-list">
           ${templateComments}
@@ -151,14 +151,20 @@ const createFilmDetailsPopupTemplates = (data) => {
 };
 
 export default class PopupFilmView extends SmartView {
-  constructor(film) {
+  #film = null;
+  #comments = [];
+
+  constructor(film, comments) {
     super();
+    this.#film = film;
     this._data = PopupFilmView.parseFilmToData(film);
+    this.#comments = comments;
+
     this.#setInnerHandlers();
   }
 
   get template() {
-    return createFilmDetailsPopupTemplates(this._data);
+    return createFilmDetailsPopupTemplates(this._data, this.#comments);
   }
 
   reset = (film) => {
@@ -190,10 +196,25 @@ export default class PopupFilmView extends SmartView {
 
   //данные с сервера в данные для попапа
 
-  static parseFilmToData = (film) => ({...film,
-    emoji: '',
-    message: '',
-  });
+  // static parseFilmToData = (film) => ({...film,
+  //   emoji: '',
+  //   message: '',
+  // });
+
+  static parseFilmToData = (film) => {
+    const res = {
+      ...film,
+      emoji: '',
+      message: '',
+    };
+
+/*     console.log('parseFilmToData', {
+      film,
+      res
+    }); */
+
+    return res;
+  };
 
   //данные для попапа в данные для сервера
   static parseDataToFilm = (data) => {
@@ -215,13 +236,30 @@ export default class PopupFilmView extends SmartView {
 
   setWatchedClickHandler = (callback) => {
     this._callback.watchedClick = callback;
-    this.element.querySelector('.film-details__control-button--watched').addEventListener('click', this.#watchedClickHandler);
+    this.element.querySelector('.film-details__control-button--watched')
+      .addEventListener('click', this.#watchedClickHandler);
   };
 
   setFavoriteClickHandler = (callback) => {
     this._callback.favoriteClick = callback;
-    this.element.querySelector('.film-details__control-button--favorite').addEventListener('click', this.#favoriteClickHandler);
+    this.element.querySelector('.film-details__control-button--favorite')
+      .addEventListener('click', this.#favoriteClickHandler);
   };
+
+  setDeleteCommentHandler = (callback) => {
+    this._callback.deleteClick = callback;
+    this.element.querySelectorAll('.film-details__comment-delete')
+      .forEach((button) => {
+        button.addEventListener('click', this.#deleteCommentClickHandler);
+      });
+  };
+
+  #deleteCommentClickHandler = (evt) => {
+    evt.preventDefault();
+    const commentId = evt.target.dataset.commentId;
+    const filmId = this.#film.id;
+    this._callback.deleteClick(filmId, commentId);
+  }
 
   #closeClickHandler = (evt) => {
     evt.preventDefault();

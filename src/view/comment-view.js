@@ -21,10 +21,21 @@ export default class CommentFilmView extends AbstractView {
                   <p class="film-details__comment-info">
                     <span class="film-details__comment-author">${comment.author}</span>
                     <span class="film-details__comment-day">${dateFilm(comment.date, dateFormatComment)}</span>
-                    <button class="film-details__comment-delete">Delete</button>
+                    <button data-comment-id=${comment.id} class="film-details__comment-delete">Delete</button>
                   </p>
                 </div>
               </li>`;
     return createCommentFilmTemplate(this.#comment);
   }
+
+  // setDeleteCommentHandler = (callback) => {
+  //   this._callback.click = callback;
+  //   this.element.querySelector('.film-details__comment-delete').addEventListener('click', this.#deleteCommentClickHandler);
+  // };
+
+  // #deleteCommentClickHandler = (evt) => {
+  //   evt.preventDefault();
+  //   this._callback.deleteClick();
+  // }
+
 }

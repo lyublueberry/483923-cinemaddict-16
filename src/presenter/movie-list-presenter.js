@@ -9,7 +9,7 @@ import ContainerFilmsView from '../view/container-films-view.js';
 import {sortFilmsByDate, sortFilmsByRating} from '../utils/film.js';
 import {SortType} from '../view/sort-view.js';
 
-import PopupFilmView from '../view/film-details-popup-view.js';
+import PopupFilmPresenter from './popup-presenter.js';
 
 import MoviePresenter from './movie-presenter.js';
 
@@ -20,19 +20,22 @@ const UserAction = {
   DELETE_COMMENT: 'DELETE_COMMENT',
   UPDATE_FILM: 'UPDATE_FILM',
 };
-
+//patch - добавление/удаелние комментариев
+//minor - добавление/удаление фильма в избранное и др.
+//major - переключение фильтров
 const UpdateType = {
   PATCH: 'PATCH',
   MINOR: 'MINOR',
   MAJOR: 'MAJOR',
 };
 
-const KEYDOWN = 'keydown';
+/* const KEYDOWN = 'keydown';
 const ESCAPE = 'Escape';
-const ESC = 'Esc';
+const ESC = 'Esc'; */
 export default class MovieListPresenter  {
   #siteMainElement = null;
   #filmsModel = null;
+  #commentsModel = null;
 
   #filmPopupComponent = null;
   #sortMenuFilm = new SortMenuView();
@@ -40,6 +43,8 @@ export default class MovieListPresenter  {
   #filmsListContainer  = new ContainerCardsView();//куда поместим все карточки
   #loadMoreButtonComponent  = new BtnShowMoreView();
   #generalContainerFilms = new ContainerFilmsView();
+
+  #popupPresenter = null;
 
   //#listFilms = []; //фильмы
   #filters = [];
@@ -50,11 +55,11 @@ export default class MovieListPresenter  {
   //#sourcedListFilms = [];
 
   //здесь передаем куда этот контейнер надо встроить
-  constructor(siteMainElement, filmsModel) {
+  constructor(siteMainElement, filmsModel, commentsModel) {
     this.#siteMainElement = siteMainElement;
     this.#filmsModel = filmsModel;
+    this.#commentsModel = commentsModel;
 
-    this.#filmsModel.addObserver(this.#handleModelEvent);
   }
 
   #handleViewAction = (actionType, updateType, update) => {
@@ -67,11 +72,14 @@ export default class MovieListPresenter  {
       case UserAction.UPDATE_FILM:
         this.#filmsModel.updateFilm(updateType, update);
         break;
-      case UserAction.ADD_COMMENT:
-        this.#filmsModel.addFilm(updateType, update);
-        break;
+    }
+  }
+
+  #handleCommentChange = (actionType, data) => {
+    console.log('handleCommentChange', { actionType, data });
+    switch (actionType) {
       case UserAction.DELETE_COMMENT:
-        this.#filmsModel.deleteFilm(updateType, update);
+        this.#commentsModel.deleteComment(actionType, data);
         break;
     }
   }
@@ -82,27 +90,44 @@ export default class MovieListPresenter  {
     // - обновить часть списка (например, когда поменялось описание)
     // - обновить список (например, когда задача ушла в архив)
     // - обновить всю доску (например, при переключении фильтра)
+
     switch (updateType) {
       case UpdateType.PATCH:
         // - обновить часть списка (например, когда поменялось описание)
 
         break;
-      case UpdateType.MINOR:
+      case UpdateType.MINOR: {
         this.#filmPresenter.get(data.id).init(data);
+        console.log(data);
+
+        const allComments = this.#commentsModel.comments;
+        const filmCommentsIds = data.comments;
+        const comments = allComments.filter((comment) => filmCommentsIds.includes(comment.id));
+
+        if(this.#popupPresenter){
+          this.#popupPresenter.init(data, comments);
+        }
         // - обновить список (например, когда задача ушла в архив)
         break;
+      }
       case UpdateType.MAJOR:
         // - обновить всю доску (например, при переключении фильтра)
         break;
     }
   }
 
-  //метод инициализации - начала работы модуля
-  init = (listFilms, filters) => {
-    //this.#listFilms = [...listFilms];
-    this.#filters = [...filters];
+  #handleCommentsModelEvent = (actionType, data) => {
+    console.log('handleCommentsModelEvent', {
+      actionType,
+      data
+    });
+  };
 
-    //this.#sourcedListFilms = [...listFilms];
+  //метод инициализации - начала работы модуля
+  init = (filters) => {
+    this.#filters = [...filters];
+    this.#filmsModel.addObserver(this.#handleModelEvent);
+    this.#commentsModel.addObserver(this.#handleCommentsModelEvent);
 
     render(this.#siteMainElement, this.#generalContainerFilms, RenderPosition.BEFOREEND);
     this.#renderBoard();
@@ -127,64 +152,26 @@ export default class MovieListPresenter  {
   }
 
   #renderPopup = (film) => {
-    let scrollTop;
-    if(this.#filmPopupComponent) {
-      scrollTop = this.#filmPopupComponent.element.scrollTop;
-      this.#replaceClosePopup();
-    }
-    this.#filmPopupComponent = new PopupFilmView(film);
-    this.#filmPopupComponent.setClosePopupHandler(this.#handleClosePopup);
-    document.body.classList.add('hide-overflow');
-    document.body.appendChild(this.#filmPopupComponent.element);
-    document.addEventListener(KEYDOWN, this.#escKeyDownHandler);
-    this.#filmPopupComponent.setWatchlistClickHandler(this.#watchlistClickHandler);
-    this.#filmPopupComponent.setWatchedClickHandler(this.#watchedClickHandler);
-    this.#filmPopupComponent.setFavoriteClickHandler(this.#favoriteClickHandler);
-    this.#filmPopupComponent.element.scrollTop = scrollTop;
-  }
+    //Презентер
+    const allComments = this.#commentsModel.comments;
+    const filmCommentsIds = film.comments;
+    const comments = allComments.filter((comment) => filmCommentsIds.includes(comment.id));
 
-  #watchlistClickHandler = (film) => {
-    const updateFilm = {...film, isWatchlist: !film.isWatchlist};
-    this.#handleFilmChange(updateFilm);
-    this.#renderPopup(updateFilm);
-  }
-
-  #watchedClickHandler = (film) => {
-    const updateFilm = {...film, isWatched: !film.isWatched};
-    this.#handleFilmChange(updateFilm);
-    this.#renderPopup(updateFilm);
-  }
-
-  #favoriteClickHandler = (film) => {
-    const updateFilm = {...film, isFavorites: !film.isFavorites};
-    this.#handleFilmChange(updateFilm);
-    this.#renderPopup(updateFilm);
+    this.#popupPresenter.init(film, comments);
   }
 
   #handleOpenPopup = (film) => {
-    if(this.#filmPopupComponent){
-      this.#replaceClosePopup();
+    if(this.#popupPresenter){
+      this.#popupPresenter.destroy();
     }
+
+    this.#popupPresenter = new PopupFilmPresenter(
+      film,
+      this.#handleViewAction,
+      this.#handleCommentChange
+    );
+
     this.#renderPopup(film);
-  };
-
-  #escKeyDownHandler = (evt) => {
-    if(evt.key === ESCAPE || evt.key === ESC) {
-      evt.preventDefault();
-      this.#replaceClosePopup();
-      document.removeEventListener(KEYDOWN, this.#escKeyDownHandler);
-    }
-  };
-
-  #replaceClosePopup = () => {
-    document.body.classList.remove('hide-overflow');
-    remove(this.#filmPopupComponent);
-    document.removeEventListener(KEYDOWN, this.#escKeyDownHandler);
-    this.#filmPopupComponent = null;
-  };
-
-  #handleClosePopup = () => {
-    this.#replaceClosePopup();
   };
 
   #renderFilms = (films) => {

@@ -10,10 +10,11 @@ const createCardFilmTemplate = (films) => {
     duration,
     genre,
     description,
-    countComment,
+    // countComment,
     isWatchlist,
     isWatched,
-    isFavorites
+    isFavorites,
+    comments
   } = films;
 
   const activeClassName = (item) => item ? 'film-card__controls-item--active' : '';
@@ -31,7 +32,7 @@ const createCardFilmTemplate = (films) => {
           </p>
           <img src="${poster}" alt="" class="film-card__poster">
           <p class="film-card__description">${description}</p>
-          <span class="film-card__comments">${countComment} comments</span>
+          <span class="film-card__comments">${comments.length} comments</span>
         </a>
         <div class="film-card__controls">
         <button class="film-card__controls-item ${activeClassName(isWatchlist)} film-card__controls-item--add-to-watchlist" type="button">Add to watchlist</button>
