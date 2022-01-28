@@ -12,10 +12,8 @@ export const generateDate = () => {
 
 //для продолжительности в часах и минутах
 export const getDurationString = (minutes) => {
-  if (minutes < 60) {
-    return dayjs.duration(minutes, 'minutes').format('m[m]');
-  }
-  return dayjs.duration(minutes, 'minutes').format('H[h] m[m]');
+  const formatTemplate = minutes < 60 ? 'm[m]' : 'H[h] m[m]';
+  return dayjs.duration(minutes, 'minutes').format(formatTemplate);
 };
 
 export const dateFilm = (dueDate, dateFormat) => dayjs(dueDate).format(dateFormat);
