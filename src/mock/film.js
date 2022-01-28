@@ -24,7 +24,7 @@ export const generateCardFilm = () => ({
   poster: generateRandomElement(POSTER_PICTURES_FILM),
   filmName: generateRandomElement(NAME_FILM),
   rating: `${getRandomInteger(1, 9)}.${getRandomInteger(0, 9)}`,
-  duration: `${getRandomInteger(0, 5)} h, ${getRandomInteger(0, 59)} m`, //« 1 h 36 m»
+  duration: getRandomInteger(30, 110), //« 1 h 36 m»
   genre: generateRandomElement(GENRE_FILM),
   genres: randomArrayValues(GENRE_FILM),
   description: generateRandomElement(DESCRIPTION_FILM_SHORT),

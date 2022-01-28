@@ -1,4 +1,6 @@
 import dayjs from 'dayjs';
+import duration from 'dayjs/plugin/duration';
+dayjs.extend(duration);
 import { getRandomInteger } from '../utils/common.js';
 
 const MAX_DAYS_GAP = 7;
@@ -6,6 +8,12 @@ const MAX_DAYS_GAP = 7;
 export const generateDate = () => {
   const daysGap = getRandomInteger(-MAX_DAYS_GAP, MAX_DAYS_GAP);
   return dayjs().add(daysGap, 'days').toDate();
+};
+
+//для продолжительности в часах и минутах
+export const getDurationString = (minutes) => {
+  const formatTemplate = minutes < 60 ? 'm[m]' : 'H[h] m[m]';
+  return dayjs.duration(minutes, 'minutes').format(formatTemplate);
 };
 
 export const dateFilm = (dueDate, dateFormat) => dayjs(dueDate).format(dateFormat);

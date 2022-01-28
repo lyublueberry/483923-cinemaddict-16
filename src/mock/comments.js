@@ -3,7 +3,7 @@ import { generateDate } from '../utils/film.js';
 
 
 const COMMENT_TEXT = ['good film', 'bad film', 'evil film'];
-const COMMENT_EMOTIONS = ['./images/emoji/angry.png', './images/emoji/sleeping.png', './images/emoji/puke.png', './images/emoji/angry.png'];
+const COMMENT_EMOTIONS = ['smile', 'sleeping', 'puke', 'angry'];
 const COMMENT_AUTHOR = ['JOHN DOE', 'JANE DOE', 'JOHN JANE'];
 
 export const generateCommentFilm = () => ({

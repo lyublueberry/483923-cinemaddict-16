@@ -61,7 +61,7 @@ export default class MovieListPresenter  {
   }
 
   #renderPopup = (film) => {
-    let scrollTop = 0;
+    let scrollTop;
     if(this.#filmPopupComponent) {
       scrollTop = this.#filmPopupComponent.element.scrollTop;
       this.#replaceClosePopup();
@@ -207,8 +207,9 @@ export default class MovieListPresenter  {
   #renderBoard = () => {
     if (this.#listFilms.length === 0) {
       this.#renderNoFilms();
+    } else {
+      this.#renderSortMenuFilm();
     }
-    this.#renderSortMenuFilm();
     this.#renderFilmsList();
   }
 }
