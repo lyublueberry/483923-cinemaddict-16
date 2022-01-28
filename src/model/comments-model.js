@@ -15,10 +15,10 @@ export default class CommentsModel extends AbstractObservable {
     this.#comments.find((comment) => comment.id === commentId);
   };
 
-  addComment = (updateType, update) => {
-    this.#comments = [update, ...this.#comments];
+  addComment = (updateType, comment) => {
+    this.#comments = [...this.#comments, comment];
 
-    this._notify(updateType, update);
+    this._notify(updateType, comment);
   };
 
   deleteComment = (updateType, commentId) => {
@@ -35,4 +35,5 @@ export default class CommentsModel extends AbstractObservable {
 
     this._notify(updateType, commentId);
   };
+
 }

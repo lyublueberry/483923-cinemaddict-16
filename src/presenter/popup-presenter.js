@@ -1,9 +1,9 @@
 import PopupFilmView from '../view/film-details-popup-view.js';
 import {render, RenderPosition, remove, replace} from '../utils/render.js';
-
-const KEYDOWN = 'keydown';
-const ESCAPE = 'Escape';
-const ESC = 'Esc';
+import { nanoid } from 'nanoid';
+import dayjs from 'dayjs';
+import { FilmComment, getRandomAuthor } from '../mock/comments.js';
+import { isEscapeKey } from '../utils/common.js';
 
 const UserAction = {
   ADD_COMMENT: 'ADD_COMMENT',
@@ -34,10 +34,6 @@ export default class PopupFilmPresenter {
   init = (film, comments) => {
     this.#film = film;
     this.#comments = comments;
-    this.#renderPopup();
-  }
-
-  #renderPopup = () => {
     const prevFilmPopupComponent = this.#filmPopupComponent;
 
     console.log(this.#film, this.#comments);
@@ -48,21 +44,24 @@ export default class PopupFilmPresenter {
     this.#filmPopupComponent.setWatchedClickHandler(this.#watchedClickHandler);
     this.#filmPopupComponent.setFavoriteClickHandler(this.#favoriteClickHandler);
     this.#filmPopupComponent.setDeleteCommentHandler(this.#deleteCommentClickHandler);
+    this.#filmPopupComponent.setSubmitCommentHandler(this.#handlerCommentFormSubmit);
+
 
     if(prevFilmPopupComponent === null){
       document.body.classList.add('hide-overflow');
-      document.addEventListener(KEYDOWN, this.#escKeyDownHandler);
+      document.addEventListener('keydown', this.#escKeyDownHandler);
       render(document.body, this.#filmPopupComponent, RenderPosition.BEFOREEND);
       return;
     }
-    const scrollTop = prevFilmPopupComponent.element.scrollTop;
+    const scrollTop = prevFilmPopupComponent.element.scrollTop;//скролл использовать через функцию updateElement из Smarts class
     replace(this.#filmPopupComponent, prevFilmPopupComponent);
     this.#filmPopupComponent.element.scrollTop = scrollTop;
     remove(prevFilmPopupComponent);
   }
 
+
   destroy = () => {
-    this.#replaceClosePopup();
+    this.#handleClosePopup();
   };
 
   #watchlistClickHandler = () => {
@@ -105,22 +104,44 @@ export default class PopupFilmPresenter {
     );
   };
 
-  #handleClosePopup = () => {
-    this.#replaceClosePopup();
-  };
+  // add comment
+  #handlerCommentFormSubmit = ({ emotion, comment }) => {
+    const filmComment = new FilmComment({
+      id: nanoid(),
+      author: getRandomAuthor(),
+      comment,
+      date: dayjs().format('YYYY-MM-DDTHH:mm:ss.SSS[Z]'),
+      emotion
+    });
 
-  #replaceClosePopup = () => {
+    // update comments
+    this.#handleCommentChange(
+      UserAction.ADD_COMMENT,
+      filmComment
+    );
+    // update film
+    this.#handleFilmChange(
+      UserAction.UPDATE_FILM,
+      UpdateType.MINOR,
+      {
+        ...this.#film,
+        comments: [...this.#film.comments, filmComment.id]
+      }
+    );
+  }
+
+  #handleClosePopup = () => {
     document.body.classList.remove('hide-overflow');
     remove(this.#filmPopupComponent);
-    document.removeEventListener(KEYDOWN, this.#escKeyDownHandler);
+    document.removeEventListener('keydown', this.#escKeyDownHandler);
     this.#filmPopupComponent = null;
   };
 
   #escKeyDownHandler = (evt) => {
-    if(evt.key === ESCAPE || evt.key === ESC) {
+    if (isEscapeKey(evt)) {
       evt.preventDefault();
-      this.#replaceClosePopup();
-      document.removeEventListener(KEYDOWN, this.#escKeyDownHandler);
+      this.#handleClosePopup();
+      document.removeEventListener('keydown', this.#escKeyDownHandler);
     }
   };
 }

@@ -41,7 +41,7 @@ export default class MovieListPresenter  {
   #sortMenuFilm = new SortMenuView();
   #noFilmComponent = new MessageFilmsListEmptyView();
   #filmsListContainer  = new ContainerCardsView();//куда поместим все карточки
-  #loadMoreButtonComponent  = new BtnShowMoreView();
+  #loadMoreButtonComponent = new BtnShowMoreView();
   #generalContainerFilms = new ContainerFilmsView();
 
   #popupPresenter = null;
@@ -80,6 +80,9 @@ export default class MovieListPresenter  {
     switch (actionType) {
       case UserAction.DELETE_COMMENT:
         this.#commentsModel.deleteComment(actionType, data);
+        break;
+      case UserAction.ADD_COMMENT:
+        this.#commentsModel.addComment(actionType, data);
         break;
     }
   }
@@ -196,7 +199,7 @@ export default class MovieListPresenter  {
     this.#renderFilms(films);
     this.#renderedFilmCount = newRenderedFilmCount;
 
-    if (this.#renderedFilmCount >= this.filmCount) {
+    if (this.#renderedFilmCount >= filmCount) {
       remove(this.#loadMoreButtonComponent);
     }
   }
@@ -234,7 +237,7 @@ export default class MovieListPresenter  {
     const filmCount = this.films.length;
     const films = this.films.slice(0, Math.min(filmCount, FILM_COUNT_PER_STEP));
     this.#renderFilms(films);
-    if (filmCount > FILM_COUNT_PER_STEP) {
+    if (filmCount > this.#renderedFilmCount) {
       this.#renderShowMoreButton();
     }
   }
