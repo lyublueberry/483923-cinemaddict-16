@@ -27,6 +27,9 @@ export const render = (container, element, place) => {
   }
 };
 
+/**
+ * @returns {HTMLDivElement}
+ */
 export const createElement = (template) =>{
   const newElement = document.createElement('div');//создали обертку
   newElement.innerHTML = template;//добавили туда разметку

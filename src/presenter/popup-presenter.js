@@ -10,15 +10,15 @@ import { UpdateType, UserAction } from '../utils/const.js';
 export default class PopupFilmPresenter {
   #film = null;
   #filmPopupComponent = null;
-  #changeFilm = null;
+  #changeData = null;
   #handleFilmChange = null;
-  #handleCommentChange = null;
+  // #handleCommentChange = null;
   #comments = null;
 
-  constructor(film, handleFilmChange, handleCommentChange) {
+  constructor(film, changeData) {
     this.#film = film;
-    this.#handleFilmChange = handleFilmChange;
-    this.#handleCommentChange = handleCommentChange;
+    this.#changeData = changeData;
+    //this.#handleCommentChange = handleCommentChange;
   }
 
   init = (film, comments) => {
@@ -53,38 +53,39 @@ export default class PopupFilmPresenter {
   };
 
   #watchlistClickHandler = () => {
-    this.#handleFilmChange(
+    this.#changeData(
       UserAction.UPDATE_FILM,
-      UpdateType.MINOR,
+      UpdateType.PATCH,
       {...this.#film, isWatchlist: !this.#film.isWatchlist}
     );
   }
 
   #watchedClickHandler = () => {
-    this.#handleFilmChange(
+    this.#changeData(
       UserAction.UPDATE_FILM,
-      UpdateType.MINOR,
+      UpdateType.PATCH,
       {...this.#film, isWatched: !this.#film.isWatched}
     );
   }
 
   #favoriteClickHandler = () => {
-    this.#handleFilmChange(
+    this.#changeData(
       UserAction.UPDATE_FILM,
-      UpdateType.MINOR,
+      UpdateType.PATCH,
       {...this.#film, isFavorites: !this.#film.isFavorites}
     );
   }
 
   #deleteCommentClickHandler = (filmId, commentId) => {
-    this.#handleCommentChange(
+    this.#changeData(
       UserAction.DELETE_COMMENT,
+      UpdateType.PATCH,
       commentId
     );
 
-    this.#handleFilmChange(
+    this.#changeData(
       UserAction.UPDATE_FILM,
-      UpdateType.MINOR,
+      UpdateType.PATCH,
       {
         ...this.#film,
         comments: this.#film.comments.filter((filmCommentId) => filmCommentId !== commentId)
@@ -103,14 +104,16 @@ export default class PopupFilmPresenter {
     });
 
     // update comments
-    this.#handleCommentChange(
+    this.#changeData(
       UserAction.ADD_COMMENT,
+      UpdateType.PATCH,
       filmComment
     );
+
     // update film
-    this.#handleFilmChange(
+    this.#changeData(
       UserAction.UPDATE_FILM,
-      UpdateType.MINOR,
+      UpdateType.PATCH,
       {
         ...this.#film,
         comments: [...this.#film.comments, filmComment.id]

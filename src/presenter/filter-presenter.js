@@ -1,8 +1,7 @@
-import FilterView from '../view/filter-view.js';
 import { render, RenderPosition, replace, remove } from '../utils/render.js';
 import { filter } from '../utils/filter.js';
 import { FilterType, UpdateType } from '../utils/const.js';
-
+import FilterView from '../view/filter-view.js';
 
 export default class FilterPresenter {
   #filterContainer = null;
@@ -53,9 +52,11 @@ export default class FilterPresenter {
 
     this.#filterComponent = new FilterView(filters, this.#filterModel.filter);
     this.#filterComponent.setFilterTypeChangeHandler(this.#handleFilterTypeChange);
+    this.#filmsModel.addObserver(this.#handleModelEvent);
+    this.#filterModel.addObserver(this.#handleModelEvent);
 
     if (prevFilterComponent === null) {
-      render(this.#filterContainer, this.#filterComponent, RenderPosition.BEFOREBEGIN);
+      render(this.#filterContainer, this.#filterComponent, RenderPosition.AFTERBEGIN);
       return;
     }
 
@@ -71,7 +72,6 @@ export default class FilterPresenter {
     if (this.#filterModel.filter === filterType) {
       return;
     }
-
     this.#filterModel.setFilter(UpdateType.MAJOR, filterType);
   }
 }

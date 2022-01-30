@@ -41,14 +41,14 @@ export default class MoviePresenter {
   };
 
   #handleWatchlist = () => {
-    this.#changeData(UserAction.UPDATE_FILM, UpdateType.MINOR, {...this.#film, isWatchlist: !this.#film.isWatchlist});
+    this.#changeData(UserAction.UPDATE_FILM, UpdateType.PATCH, {...this.#film, isWatchlist: !this.#film.isWatchlist});
   }
 
   #handleWatched = () => {
-    this.#changeData(UserAction.UPDATE_FILM, UpdateType.MINOR, {...this.#film, isWatched: !this.#film.isWatched});
+    this.#changeData(UserAction.UPDATE_FILM, UpdateType.PATCH, {...this.#film, isWatched: !this.#film.isWatched});
   }
 
   #handleFavorite = () => {
-    this.#changeData(UserAction.UPDATE_FILM, UpdateType.MINOR, {...this.#film, isFavorites: !this.#film.isFavorites});
+    this.#changeData(UserAction.UPDATE_FILM, UpdateType.PATCH, {...this.#film, isFavorites: !this.#film.isFavorites});
   }
 }

@@ -10,6 +10,9 @@ export default class AbstractView {
     }
   }
 
+  /**
+   * @returns {HTMLDivElement}
+   */
   get element() {
     if(!this.#element) {
       this.#element = createElement(this.template);

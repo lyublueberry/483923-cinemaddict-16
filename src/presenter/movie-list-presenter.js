@@ -1,16 +1,17 @@
 //presenter для всей отрисовки доски фильмов
 import MessageFilmsListEmptyView from '../view/no-films-view.js';
 import ContainerCardsView from '../view/container-card-view.js';
-import BtnShowMoreView from '../view/btn-show-more.js';
-import {render, RenderPosition, remove} from '../utils/render.js';
 import SortMenuView from '../view/sort-view.js';
 import ContainerFilmsView from '../view/container-films-view.js';
-import {sortFilmsByDate, sortFilmsByRating} from '../utils/film.js';
-import {FilterType, SortType} from '../utils/const.js';
+import BtnShowMoreView from '../view/btn-show-more.js';
+
 import PopupFilmPresenter from './popup-presenter.js';
 import MoviePresenter from './movie-presenter.js';
-import { FILM_COUNT_PER_STEP, UpdateType, UserAction } from '../utils/const.js';
-import { filter } from '../utils/filter.js';
+
+import {render, RenderPosition, remove} from '../utils/render.js';
+import {sortFilmsByDate, sortFilmsByRating} from '../utils/film.js';
+import {FILM_COUNT_PER_STEP, UpdateType, UserAction, FilterType, SortType } from '../utils/const.js';
+import {filter} from '../utils/filter.js';
 
 export default class MovieListPresenter  {
   #siteMainElement = null;
@@ -42,11 +43,8 @@ export default class MovieListPresenter  {
 
   get films() {
     this.#filterType = this.#filterModel.filter;
-    console.log(this.#filterModel.filter);
-
     const films = this.#filmsModel.films;
     const filteredFilms = filter[this.#filterType](films);
-
     switch (this.#currentSortType) {
       case SortType.BY_DATE:
         return filteredFilms.sort(sortFilmsByDate);
@@ -59,10 +57,7 @@ export default class MovieListPresenter  {
   //метод инициализации - начала работы модуля
   init = () => {
     this.#filmsModel.addObserver(this.#handleModelEvent);
-    this.#commentsModel.addObserver(this.#handleCommentsModelEvent);
-
     this.#filterModel.addObserver(this.#handleModelEvent);
-
     render(this.#siteMainElement, this.#generalContainerFilms, RenderPosition.BEFOREEND);
     this.#renderBoard();
   }
@@ -76,19 +71,16 @@ export default class MovieListPresenter  {
       case UserAction.UPDATE_FILM:
         this.#filmsModel.updateFilm(updateType, update);
         break;
+      case UserAction.DELETE_COMMENT:
+        this.#commentsModel.deleteComment(updateType, update);
+        break;
+      case UserAction.ADD_COMMENT:
+        this.#commentsModel.addComment(updateType, update);
+        break;
     }
   }
 
-  #handleCommentChange = (actionType, data) => {
-    switch (actionType) {
-      case UserAction.DELETE_COMMENT:
-        this.#commentsModel.deleteComment(actionType, data);
-        break;
-      case UserAction.ADD_COMMENT:
-        this.#commentsModel.addComment(actionType, data);
-        break;
-    }
-  }
+  #getFilmComments = (film) => this.#commentsModel.comments.filter((comment) => film.comments.includes(comment.id));
 
   #handleModelEvent = (updateType, data) => {
     // В зависимости от типа изменений решаем, что делать:
@@ -99,33 +91,25 @@ export default class MovieListPresenter  {
     switch (updateType) {
       case UpdateType.PATCH:
         // - обновить часть списка (например, когда поменялось описание)
-
+        this.#filmPresenter.get(data.id).init(data);
+        if (this.#popupPresenter){
+          this.#popupPresenter.init(data, this.#getFilmComments(data));
+        }
         break;
       case UpdateType.MINOR: {
-        this.#filmPresenter.get(data.id).init(data);
-
-        const allComments = this.#commentsModel.comments;
-        const filmCommentsIds = data.comments;
-        const comments = allComments.filter((comment) => filmCommentsIds.includes(comment.id));
-
-        if(this.#popupPresenter){
-          this.#popupPresenter.init(data, comments);
-        }
-        // - обновить список (например, когда задача ушла в архив)
+        this.#clearFilmList();
+        this.#renderFilmsList();
+        this.#renderedFilmCount = FILM_COUNT_PER_STEP;
         break;
       }
       case UpdateType.MAJOR:
         // - обновить всю доску (например, при переключении фильтра)
+        this.#clearFilmList();
+        this.#renderFilmsList();
+        this.#renderedFilmCount = FILM_COUNT_PER_STEP;
         break;
     }
   }
-
-  #handleCommentsModelEvent = (actionType, data) => {
-    console.log('handleCommentsModelEvent', {
-      actionType,
-      data
-    });
-  };
 
   //получает ссылку на контейнер куда отрисовываем и данные о фильме
   #renderFilm = (film) => {
@@ -136,11 +120,7 @@ export default class MovieListPresenter  {
 
   #renderPopup = (film) => {
     //Презентер
-    const allComments = this.#commentsModel.comments;
-    const filmCommentsIds = film.comments;
-    const comments = allComments.filter((comment) => filmCommentsIds.includes(comment.id));
-
-    this.#popupPresenter.init(film, comments);
+    this.#popupPresenter.init(film, this.#getFilmComments(film));
   }
 
   #handleOpenPopup = (film) => {
@@ -150,8 +130,7 @@ export default class MovieListPresenter  {
 
     this.#popupPresenter = new PopupFilmPresenter(
       film,
-      this.#handleViewAction,
-      this.#handleCommentChange
+      this.#handleViewAction
     );
 
     this.#renderPopup(film);
@@ -196,8 +175,8 @@ export default class MovieListPresenter  {
   }
 
   #renderSortMenuFilm = () => {
-    render(this.#siteMainElement, this.#sortMenuFilm, RenderPosition.AFTERBEGIN); //сортировка
     this.#sortMenuFilm.setSortTypeChangeHandler(this.#handleSortTypeChange);
+    render(this.#siteMainElement, this.#sortMenuFilm, RenderPosition.AFTERBEGIN); //сортировка
   }
 
   #handleSortTypeChange = (sortType) => {
@@ -226,9 +205,9 @@ export default class MovieListPresenter  {
   #renderBoard = () => {
     if (this.films.length === 0) {
       this.#renderNoFilms();
-    } else {
-      this.#renderSortMenuFilm();
+      return;
     }
+    this.#renderSortMenuFilm();
     this.#renderFilmsList();
   }
 }
