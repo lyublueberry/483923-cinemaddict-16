@@ -4,18 +4,8 @@ import { nanoid } from 'nanoid';
 import dayjs from 'dayjs';
 import { FilmComment, getRandomAuthor } from '../mock/comments.js';
 import { isEscapeKey } from '../utils/common.js';
+import { UpdateType, UserAction } from '../utils/const.js';
 
-const UserAction = {
-  ADD_COMMENT: 'ADD_COMMENT',
-  DELETE_COMMENT: 'DELETE_COMMENT',
-  UPDATE_FILM: 'UPDATE_FILM',
-};
-
-const UpdateType = {
-  PATCH: 'PATCH',
-  MINOR: 'MINOR',
-  MAJOR: 'MAJOR',
-};
 
 export default class PopupFilmPresenter {
   #film = null;
@@ -35,8 +25,6 @@ export default class PopupFilmPresenter {
     this.#film = film;
     this.#comments = comments;
     const prevFilmPopupComponent = this.#filmPopupComponent;
-
-    console.log(this.#film, this.#comments);
 
     this.#filmPopupComponent = new PopupFilmView(this.#film, this.#comments);
     this.#filmPopupComponent.setClosePopupHandler(this.#handleClosePopup);

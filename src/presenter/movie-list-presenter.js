@@ -3,67 +3,71 @@ import MessageFilmsListEmptyView from '../view/no-films-view.js';
 import ContainerCardsView from '../view/container-card-view.js';
 import BtnShowMoreView from '../view/btn-show-more.js';
 import {render, RenderPosition, remove} from '../utils/render.js';
-import FilterView from '../view/site-menu-view.js';
 import SortMenuView from '../view/sort-view.js';
 import ContainerFilmsView from '../view/container-films-view.js';
 import {sortFilmsByDate, sortFilmsByRating} from '../utils/film.js';
-import {SortType} from '../view/sort-view.js';
-
+import {FilterType, SortType} from '../utils/const.js';
 import PopupFilmPresenter from './popup-presenter.js';
-
 import MoviePresenter from './movie-presenter.js';
+import { FILM_COUNT_PER_STEP, UpdateType, UserAction } from '../utils/const.js';
+import { filter } from '../utils/filter.js';
 
-const FILM_COUNT_PER_STEP = 5;
-
-const UserAction = {
-  ADD_COMMENT: 'ADD_COMMENT',
-  DELETE_COMMENT: 'DELETE_COMMENT',
-  UPDATE_FILM: 'UPDATE_FILM',
-};
-//patch - добавление/удаелние комментариев
-//minor - добавление/удаление фильма в избранное и др.
-//major - переключение фильтров
-const UpdateType = {
-  PATCH: 'PATCH',
-  MINOR: 'MINOR',
-  MAJOR: 'MAJOR',
-};
-
-/* const KEYDOWN = 'keydown';
-const ESCAPE = 'Escape';
-const ESC = 'Esc'; */
 export default class MovieListPresenter  {
   #siteMainElement = null;
   #filmsModel = null;
   #commentsModel = null;
-
+  #filterModel = null;
   #filmPopupComponent = null;
+  #popupPresenter = null;
+  #noFilmComponent = null;
+
   #sortMenuFilm = new SortMenuView();
-  #noFilmComponent = new MessageFilmsListEmptyView();
   #filmsListContainer  = new ContainerCardsView();//куда поместим все карточки
   #loadMoreButtonComponent = new BtnShowMoreView();
   #generalContainerFilms = new ContainerFilmsView();
 
-  #popupPresenter = null;
 
-  //#listFilms = []; //фильмы
-  #filters = [];
   #renderedFilmCount = FILM_COUNT_PER_STEP;
   #filmPresenter = new Map();
-
+  #filterType = FilterType.ALL;
   #currentSortType = SortType.DEFAULT;
-  //#sourcedListFilms = [];
 
   //здесь передаем куда этот контейнер надо встроить
-  constructor(siteMainElement, filmsModel, commentsModel) {
+  constructor(siteMainElement, filmsModel, commentsModel, filterModel) {
     this.#siteMainElement = siteMainElement;
     this.#filmsModel = filmsModel;
     this.#commentsModel = commentsModel;
+    this.#filterModel = filterModel;
+  }
 
+  get films() {
+    this.#filterType = this.#filterModel.filter;
+    console.log(this.#filterModel.filter);
+
+    const films = this.#filmsModel.films;
+    const filteredFilms = filter[this.#filterType](films);
+
+    switch (this.#currentSortType) {
+      case SortType.BY_DATE:
+        return filteredFilms.sort(sortFilmsByDate);
+      case SortType.BY_RATING:
+        return filteredFilms.sort(sortFilmsByRating);
+    }
+    return filteredFilms;
+  }
+
+  //метод инициализации - начала работы модуля
+  init = () => {
+    this.#filmsModel.addObserver(this.#handleModelEvent);
+    this.#commentsModel.addObserver(this.#handleCommentsModelEvent);
+
+    this.#filterModel.addObserver(this.#handleModelEvent);
+
+    render(this.#siteMainElement, this.#generalContainerFilms, RenderPosition.BEFOREEND);
+    this.#renderBoard();
   }
 
   #handleViewAction = (actionType, updateType, update) => {
-    console.log(actionType, updateType, update);
     // Здесь будем вызывать обновление модели.
     // actionType - действие пользователя, нужно чтобы понять, какой метод модели вызвать
     // updateType - тип изменений, нужно чтобы понять, что после нужно обновить
@@ -76,7 +80,6 @@ export default class MovieListPresenter  {
   }
 
   #handleCommentChange = (actionType, data) => {
-    console.log('handleCommentChange', { actionType, data });
     switch (actionType) {
       case UserAction.DELETE_COMMENT:
         this.#commentsModel.deleteComment(actionType, data);
@@ -88,7 +91,6 @@ export default class MovieListPresenter  {
   }
 
   #handleModelEvent = (updateType, data) => {
-    console.log(updateType, data);
     // В зависимости от типа изменений решаем, что делать:
     // - обновить часть списка (например, когда поменялось описание)
     // - обновить список (например, когда задача ушла в архив)
@@ -101,7 +103,6 @@ export default class MovieListPresenter  {
         break;
       case UpdateType.MINOR: {
         this.#filmPresenter.get(data.id).init(data);
-        console.log(data);
 
         const allComments = this.#commentsModel.comments;
         const filmCommentsIds = data.comments;
@@ -125,27 +126,6 @@ export default class MovieListPresenter  {
       data
     });
   };
-
-  //метод инициализации - начала работы модуля
-  init = (filters) => {
-    this.#filters = [...filters];
-    this.#filmsModel.addObserver(this.#handleModelEvent);
-    this.#commentsModel.addObserver(this.#handleCommentsModelEvent);
-
-    render(this.#siteMainElement, this.#generalContainerFilms, RenderPosition.BEFOREEND);
-    this.#renderBoard();
-    render(this.#siteMainElement, new FilterView(filters), RenderPosition.AFTERBEGIN); //меню
-  }
-
-  get films() {
-    switch (this.#currentSortType) {
-      case SortType.BY_DATE:
-        return [...this.#filmsModel.films].sort(sortFilmsByDate);
-      case SortType.BY_RATING:
-        return [...this.#filmsModel.films].sort(sortFilmsByRating);
-    }
-    return this.#filmsModel.films;
-  }
 
   //получает ссылку на контейнер куда отрисовываем и данные о фильме
   #renderFilm = (film) => {
@@ -189,6 +169,7 @@ export default class MovieListPresenter  {
   }
 
   #renderNoFilms = () => {
+    this.#noFilmComponent = new MessageFilmsListEmptyView(this.#filterType);
     render(this.#filmsListContainer, this.#noFilmComponent, RenderPosition.BEFOREEND);
   }
 

@@ -1,17 +1,6 @@
 import CardFilmView from '../view/card-view.js';
 import { remove, render, RenderPosition, replace } from '../utils/render.js';
-
-const UserAction = {
-  ADD_COMMENT: 'ADD_COMMENT',
-  DELETE_COMMENT: 'DELETE_COMMENT',
-  UPDATE_FILM: 'UPDATE_FILM',
-};
-
-const UpdateType = {
-  PATCH: 'PATCH',
-  MINOR: 'MINOR',
-  MAJOR: 'MAJOR',
-};
+import { UpdateType, UserAction } from '../utils/const.js';
 
 export default class MoviePresenter {
   #filmListContainer = null;
