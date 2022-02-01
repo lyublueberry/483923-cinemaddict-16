@@ -67,7 +67,7 @@ const handleSiteMenuClick = (menuItem) => {
  /*      currentMenuItem = 'stats'; */
       console.log('show stats');
       movieListPresenter.destroy();
-      statisticsComponent = new StatisticsPageView();
+      statisticsComponent = new StatisticsPageView(filmsModel);
       render(siteMainElement, statisticsComponent, RenderPosition.BEFOREEND);
 
       // Показать статистику

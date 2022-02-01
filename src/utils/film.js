@@ -1,7 +1,9 @@
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
 dayjs.extend(duration);
-import { getRandomInteger } from '../utils/common.js';
+import {
+  getRandomInteger
+} from '../utils/common.js';
 
 const MAX_DAYS_GAP = 7;
 
@@ -48,3 +50,8 @@ export const sortFilmsByRating = (filmA, filmB) => {
 
   return ratingB - ratingA;
 };
+
+export const runtimeToDuration = (runtime) => ({
+  hours: Math.floor(runtime / 60),
+  minutes: runtime % 60
+});

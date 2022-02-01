@@ -18,7 +18,7 @@ const createFilmDetailsPopupTemplates = ({ filmData, commentsData, commentData }
     date,
     duration,
     country,
-    genres,
+    genre,
     description,
     ageRating,
     isWatchlist,
@@ -28,7 +28,7 @@ const createFilmDetailsPopupTemplates = ({ filmData, commentsData, commentData }
 
   const activeClassName = (item) => item ? 'film-details__control-button--active' : '';
 
-  const templateGenres = genres.map((gen) => `<span class="film-details__genre">${(gen)}</span>`).join('');
+  const templateGenres = genre.map((gen) => `<span class="film-details__genre">${(gen)}</span>`).join(' ');
 
   const templateComments = commentsData.map((comment) => new CommentFilmView(comment).template).join('');
 
