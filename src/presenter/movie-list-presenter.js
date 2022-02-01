@@ -13,6 +13,12 @@ import {sortFilmsByDate, sortFilmsByRating} from '../utils/film.js';
 import {FILM_COUNT_PER_STEP, UpdateType, UserAction, FilterType, SortType } from '../utils/const.js';
 import {filter} from '../utils/filter.js';
 
+
+const Mode = {
+  OPEN: 'OPEN',
+  CLOSE: 'CLOSE'
+};
+
 export default class MovieListPresenter  {
   #siteMainElement = null;
   #filmsModel = null;
@@ -21,6 +27,7 @@ export default class MovieListPresenter  {
   #filmPopupComponent = null;
   #popupPresenter = null;
   #noFilmComponent = null;
+  #mode = Mode.CLOSE;
 
   #sortMenuFilm = new SortMenuView();
   #filmsListContainer  = new ContainerCardsView();//куда поместим все карточки
@@ -39,12 +46,20 @@ export default class MovieListPresenter  {
     this.#filmsModel = filmsModel;
     this.#commentsModel = commentsModel;
     this.#filterModel = filterModel;
+
+    this.#popupPresenter = new PopupFilmPresenter(
+      this.#handleViewAction,
+      this.#handleClosePopup
+    );
   }
 
   get films() {
     this.#filterType = this.#filterModel.filter;
     const films = this.#filmsModel.films;
     const filteredFilms = filter[this.#filterType](films);
+
+    // console.trace(this.#currentSortType);
+
     switch (this.#currentSortType) {
       case SortType.BY_DATE:
         return filteredFilms.sort(sortFilmsByDate);
@@ -56,10 +71,22 @@ export default class MovieListPresenter  {
 
   //метод инициализации - начала работы модуля
   init = () => {
+    console.log('movie list presenter init');
+    this.#currentSortType = SortType.DEFAULT;
     this.#filmsModel.addObserver(this.#handleModelEvent);
     this.#filterModel.addObserver(this.#handleModelEvent);
     render(this.#siteMainElement, this.#generalContainerFilms, RenderPosition.BEFOREEND);
+    this.#clearFilmList();
     this.#renderBoard();
+  }
+
+  destroy = () => {
+    this.#clearFilmList();
+    remove(this.#sortMenuFilm);
+    remove(this.#filmsListContainer);
+    remove(this.#generalContainerFilms);
+    this.#filmsModel.removeObserver(this.#handleModelEvent);
+    this.#filterModel.removeObserver(this.#handleModelEvent);
   }
 
   #handleViewAction = (actionType, updateType, update) => {
@@ -88,13 +115,13 @@ export default class MovieListPresenter  {
     // - обновить список (например, когда задача ушла в архив)
     // - обновить всю доску (например, при переключении фильтра)
 
+    console.log('handleModelEvent', { updateType, data });
+
     switch (updateType) {
       case UpdateType.PATCH:
         // - обновить часть списка (например, когда поменялось описание)
         this.#filmPresenter.get(data.id).init(data);
-        if (this.#popupPresenter){
-          this.#popupPresenter.init(data, this.#getFilmComments(data));
-        }
+        this.#renderPopup(data);
         break;
       case UpdateType.MINOR: {
         this.#clearFilmList();
@@ -120,31 +147,44 @@ export default class MovieListPresenter  {
 
   #renderPopup = (film) => {
     //Презентер
-    this.#popupPresenter.init(film, this.#getFilmComments(film));
+    if(this.#mode === Mode.OPEN) {
+      this.#popupPresenter.init(film, this.#getFilmComments(film));
+    }
+
   }
 
   #handleOpenPopup = (film) => {
+    this.#mode= Mode.OPEN;
+/*     console.trace();
     if(this.#popupPresenter){
       this.#popupPresenter.destroy();
-    }
+    } */
 
-    this.#popupPresenter = new PopupFilmPresenter(
-      film,
-      this.#handleViewAction
-    );
+
 
     this.#renderPopup(film);
   };
+
+  #handleClosePopup = () => {
+    this.#mode = Mode.CLOSE;
+  }
+
 
   #renderFilms = (films) => {
     films.forEach((film) => this.#renderFilm(film));
   }
 
   #clearFilmList = () => {
+    console.log('clearFilmList');
+/*     if(this.#popupPresenter){
+      this.#popupPresenter.destroy();
+    } */
     this.#filmPresenter.forEach((presenter) => presenter.destroy());
     this.#filmPresenter.clear();
     this.#renderedFilmCount = FILM_COUNT_PER_STEP;
     remove(this.#loadMoreButtonComponent);
+    // this.#currentSortType = SortType.DEFAULT;
+    this.#handleClosePopup();
   }
 
   #renderNoFilms = () => {
@@ -180,6 +220,7 @@ export default class MovieListPresenter  {
   }
 
   #handleSortTypeChange = (sortType) => {
+    console.log({ sortType });
     // - Сортируем
     if (this.#currentSortType === sortType) {
       return;
@@ -193,6 +234,7 @@ export default class MovieListPresenter  {
   }
 
   #renderFilmsList = () => {
+    console.log('renderFilmsList');
     render(this.#generalContainerFilms, this.#filmsListContainer, RenderPosition.BEFOREEND);
     const filmCount = this.films.length;
     const films = this.films.slice(0, Math.min(filmCount, FILM_COUNT_PER_STEP));
@@ -203,6 +245,7 @@ export default class MovieListPresenter  {
   }
 
   #renderBoard = () => {
+    console.log('renderBoard');
     if (this.films.length === 0) {
       this.#renderNoFilms();
       return;

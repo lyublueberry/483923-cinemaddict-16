@@ -8,6 +8,7 @@ import { UpdateType, UserAction } from '../utils/const.js';
 
 
 export default class PopupFilmPresenter {
+  #popupCloseHandler = null;
   #film = null;
   #filmPopupComponent = null;
   #changeData = null;
@@ -15,13 +16,15 @@ export default class PopupFilmPresenter {
   // #handleCommentChange = null;
   #comments = null;
 
-  constructor(film, changeData) {
-    this.#film = film;
+  constructor(changeData, popupCloseHandler) {
+    this.#popupCloseHandler = popupCloseHandler;
+    /* this.#film = film; */
     this.#changeData = changeData;
     //this.#handleCommentChange = handleCommentChange;
   }
 
   init = (film, comments) => {
+
     this.#film = film;
     this.#comments = comments;
     const prevFilmPopupComponent = this.#filmPopupComponent;
@@ -126,6 +129,7 @@ export default class PopupFilmPresenter {
     remove(this.#filmPopupComponent);
     document.removeEventListener('keydown', this.#escKeyDownHandler);
     this.#filmPopupComponent = null;
+    this.#popupCloseHandler();
   };
 
   #escKeyDownHandler = (evt) => {

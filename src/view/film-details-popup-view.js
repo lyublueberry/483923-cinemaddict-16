@@ -115,7 +115,7 @@ const createFilmDetailsPopupTemplates = ({ filmData, commentsData, commentData }
           </div>
 
           <label class="film-details__comment-label">
-            <textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment">${commentData.comment}</textarea>
+            <textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment">${he.encode(commentData.comment)}</textarea>
           </label>
 
           <div class="film-details__emoji-list">
@@ -187,8 +187,6 @@ export default class PopupFilmView extends SmartView {
     this.element.querySelector('.film-details__emoji-list').addEventListener('change', this.#inputEmojiHandler);
     this.element.querySelector('.film-details__comment-input').addEventListener('input', this.#inputMessageHandler);
     this.element.querySelector('.film-details__close-btn').addEventListener('click', this.#closeClickHandler);
-
-
   };
 
   #inputEmojiHandler = (evt) => {
@@ -288,9 +286,4 @@ export default class PopupFilmView extends SmartView {
     evt.preventDefault();
     this._callback.favoriteClick(this._data);
   };
-
-/*   static parseDataToComment = (data) => {
-    const {emoji, message} = data; //Деструктур
-    return {emotion, comment};
-  } */
 }

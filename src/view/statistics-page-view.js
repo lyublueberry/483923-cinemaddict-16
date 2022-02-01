@@ -1,10 +1,6 @@
-import dayjs from 'dayjs';
-import SmartView from './smart-view.js';
+import AbstractView from './abstract-view.js';
 
-const createStatisticsTemplate = () => {
-  const completedTaskCount = 0; // Нужно посчитать количество завершенных задач за период
-
-  return `  <section class="statistic">
+const createStatisticsTemplate = () => (`<section class="statistic">
   <p class="statistic__rank">
     Your rank
     <img class="statistic__img" src="images/bitmap@2x.png" alt="Avatar" width="35" height="35">
@@ -52,49 +48,15 @@ const createStatisticsTemplate = () => {
     <canvas class="statistic__chart" width="1000"></canvas>
   </div>
 
-</section>`;
-};
+</section>`);
 
-export default class StatisticsView extends SmartView {
+export default class StatisticsPageView extends AbstractView {
 
-  constructor(tasks) {
+  constructor() {
     super();
-
-    this._data = {
-      tasks,
-      // По условиям техзадания по умолчанию интервал - неделя от текущей даты
-      dateFrom: dayjs().subtract(6, 'day').toDate(),
-      dateTo: dayjs().toDate(),
-    };
-
-    this.#setCharts();
   }
 
   get template() {
-    return createStatisticsTemplate(this._data);
-  }
-
-  removeElement = () => {
-    super.removeElement();
-  }
-
-
-  restoreHandlers = () => {
-    this.#setCharts();
-  }
-
-  #dateChangeHandler = ([dateFrom, dateTo]) => {
-    if (!dateFrom || !dateTo) {
-      return;
-    }
-
-    this.updateData({
-      dateFrom,
-      dateTo,
-    });
-  }
-
-  #setCharts = () => {
-    // Нужно отрисовать два графика
+    return createStatisticsTemplate();
   }
 }
