@@ -5,6 +5,14 @@ export const FilterType = {
   FAVORITES: 'Favorites',
 };
 
+export const PeriodType  = {
+  ALL_TIME: 'All time',
+  TODAY: 'Today',
+  WEEK: 'Week',
+  MONTH: 'Month',
+  YEAR: 'Year'
+};
+
 export const UserAction = {
   ADD_COMMENT: 'ADD_COMMENT',
   DELETE_COMMENT: 'DELETE_COMMENT',

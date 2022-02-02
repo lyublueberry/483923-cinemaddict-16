@@ -187,6 +187,7 @@ export default class PopupFilmView extends SmartView {
     this.element.querySelector('.film-details__emoji-list').addEventListener('change', this.#inputEmojiHandler);
     this.element.querySelector('.film-details__comment-input').addEventListener('input', this.#inputMessageHandler);
     this.element.querySelector('.film-details__close-btn').addEventListener('click', this.#closeClickHandler);
+    this.element.querySelector('.film-details__control-button--favorite').addEventListener('click', this.#favoriteClickHandler);
   };
 
   #inputEmojiHandler = (evt) => {

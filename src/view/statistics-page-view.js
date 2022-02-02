@@ -1,24 +1,38 @@
 import AbstractView from './abstract-view.js';
 import Chart from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
-import { runtimeToDuration } from '../utils/film.js';
-import { filter } from '../utils/filter.js';
-import { FilterType } from '../utils/const.js';
+import {runtimeToDuration} from '../utils/film.js';
+import {filter} from '../utils/filter.js';
+import {FilterType} from '../utils/const.js';
 
-const getTopGenre = (films) => {
-  let genres = [];
-  const genresList = {};
-  films.forEach((film) => {
-    genres = [...genres, ...film.genre];
-  });
-  const uniqeGenres = [...new Set(genres)];
-  uniqeGenres.forEach((genre) => {
-    genresList[genre] = genres.filter((val) => val === genre).length;
-  });
-  return Object.entries(genresList).sort((a, b) => b[1]-a[1]).shift()[0];
+const getGenresStat = (films) => {
+  const genreCount = films
+    .reduce((genres, film) => [...genres, ...film.genre], [])
+    .reduce((genres, genre) => ({
+      ...genres,
+      ...{
+        [genre]: (genres[genre] || 0) + 1
+      }
+    }), {});
+
+  const sortedGenreCount = Object.entries(genreCount).sort((genreA, genreB) => genreB[1] - genreA[1]);
+
+  console.log(sortedGenreCount);
+  return sortedGenreCount;
 };
 
-const createStatisticsRankTemplate = ({avatar, rank}) => (`<p class="statistic__rank">
+
+const getTopGenre = (films) => {
+  return getGenresStat(films).shift().shift();
+/*   const genreCount = getGenresStat(films);
+  return Object.keys(genreCount)
+    .reduce((genereA, genereB) => genreCount[genereA] > genreCount[genereB] ? genereA : genereB); */
+};
+
+const createStatisticsRankTemplate = ({
+  avatar,
+  rank
+}) => (`<p class="statistic__rank">
     Your rank
     <img class="statistic__img" src="${avatar}" alt="Avatar" width="35" height="35">
     <span class="statistic__rank-label">${rank}</span>
@@ -26,7 +40,10 @@ const createStatisticsRankTemplate = ({avatar, rank}) => (`<p class="statistic__
 `);
 
 const createStatisticsFilterItemTemplate = (filter, currentFilterType) => {
-  const {type, name} = filter;
+  const {
+    type,
+    name
+  } = filter;
   return (
     `<input type="radio" class="statistic__filters-input visually-hidden" name="statistic-filter"
     id="statistic-${type}" value="${type}"
@@ -75,6 +92,7 @@ export default class StatisticsPageView extends AbstractView {
 
   constructor(filmsModel) {
     super();
+    console.log(filmsModel);
 
     this.#filmsModel = filmsModel;
     this.#filters = [
@@ -97,9 +115,10 @@ export default class StatisticsPageView extends AbstractView {
       {
         type: 'year',
         name: 'Year',
-      },];
+      },
+    ];
 
-      this.#currentFilter = 'week';
+    this.#currentFilter = 'week';
     this.#setCharts();
   }
 
@@ -111,26 +130,30 @@ export default class StatisticsPageView extends AbstractView {
 
     const watchedFilms = filter[FilterType.HISTORY](this.#filmsModel.films);
     const watchedFilmsCount = watchedFilms.length;
-    const totalDuration = runtimeToDuration(watchedFilms.reduce((totalMinutes, film)=>(totalMinutes + film.duration), 0));
+    const totalDuration = runtimeToDuration(watchedFilms.reduce((totalMinutes, film) => (totalMinutes + film.duration), 0));
 
-   const topGenre = getTopGenre(watchedFilms);
+    const topGenre = getTopGenre(watchedFilms);
     return createStatisticsTemplate(user, this.#filters, this.#currentFilter, watchedFilmsCount, totalDuration, topGenre);
   }
 
   #setCharts = () => {
+    const films = this.#filmsModel.films;
+    const genresStat = getGenresStat(films);
+    const genres = genresStat.map((genre) => genre[0]);
+    const genresCounts = genresStat.map((genre) => genre[1]);
     const BAR_HEIGHT = 50;
     const statisticCtx = this.element.querySelector('.statistic__chart');
 
     // Обязательно рассчитайте высоту canvas, она зависит от количества элементов диаграммы
-    statisticCtx.height = BAR_HEIGHT * 5;
+    statisticCtx.height = BAR_HEIGHT * genres.length;
 
     const myChart = new Chart(statisticCtx, {
       plugins: [ChartDataLabels],
       type: 'horizontalBar',
       data: {
-        labels: ['Sci-Fi', 'Animation', 'Fantasy', 'Comedy', 'TV Series'],
+        labels: genres,
         datasets: [{
-          data: [11, 8, 7, 4, 3],
+          data: genresCounts,
           backgroundColor: '#ffe800',
           hoverBackgroundColor: '#ffe800',
           anchor: 'start',

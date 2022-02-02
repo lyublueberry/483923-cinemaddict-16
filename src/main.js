@@ -1,5 +1,9 @@
-import { generateCardFilm } from './mock/film.js';
-import { generateComments } from './mock/comments.js';
+import {
+  generateCardFilm
+} from './mock/film.js';
+import {
+  generateComments
+} from './mock/comments.js';
 import FilmsModel from './model/films-model.js';
 import CommentsModel from './model/comments-model.js';
 import FilterModel from './model/filter-model.js';
@@ -7,12 +11,27 @@ import StatisticsView from './view/statistic-view.js';
 import ProfileRatingView from './view/profile-rating-view.js';
 import MovieListPresenter from './presenter/movie-list-presenter.js';
 import FilterPresenter from './presenter/filter-presenter.js';
-import { remove, render, RenderPosition } from './utils/render.js';
-import { FILM_CARD_COUNT, FilterType, MenuItem, UpdateType } from './utils/const.js';
+import {remove, render, RenderPosition} from './utils/render.js';
+import {FILM_CARD_COUNT,  FilterType,  MenuItem,  UpdateType} from './utils/const.js';
 import MainNavView from './view/main-nav-view.js';
 import StatisticsPageView from './view/statistics-page-view.js';
 
-const films = Array.from({length: FILM_CARD_COUNT}, generateCardFilm);
+import StaticticPresenter from './presenter/statistic-presenter.js';
+
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+dayjs.extend(utc);
+
+/* console.log(dayjs.utc().format());
+console.log(dayjs().format());
+console.log(new Date().getTime()); */
+console.log();
+
+
+
+const films = Array.from({
+  length: FILM_CARD_COUNT
+}, generateCardFilm);
 const filmsModel = new FilmsModel();
 filmsModel.films = films;
 
@@ -34,7 +53,7 @@ const movieListPresenter = new MovieListPresenter(siteMainElement, filmsModel, c
 const filterPresenter = new FilterPresenter(siteMenuComponent, filterModel, filmsModel);
 
 let statisticsComponent = null;
-
+const statisticPresenter = new StaticticPresenter(siteMainElement, filmsModel);
 filterPresenter.init();
 movieListPresenter.init();
 
@@ -46,29 +65,32 @@ movieListPresenter.init();
 const handleSiteMenuClick = (menuItem) => {
 
 
-  console.log('handleSiteMenuClick', { menuItem });
+  console.log('handleSiteMenuClick', {
+    menuItem
+  });
   switch (menuItem) {
     case FilterType.ALL:
     case FilterType.WATCHLIST:
     case FilterType.HISTORY:
     case FilterType.FAVORITES:
-/*       if(currentMenuItem === 'films'){
-        return;
-      } */
-/*       currentMenuItem = 'films'; */
+      /*       if(currentMenuItem === 'films'){
+              return;
+            } */
+      /*       currentMenuItem = 'films'; */
       console.log('show films');
-      remove(statisticsComponent);
+      statisticPresenter.destroy();
       movieListPresenter.init();
       break;
     case MenuItem.STATS:
-/*       if(currentMenuItem === 'stats'){
-        return;
-      } */
- /*      currentMenuItem = 'stats'; */
+      /*       if(currentMenuItem === 'stats'){
+              return;
+            } */
+      /*      currentMenuItem = 'stats'; */
       console.log('show stats');
       movieListPresenter.destroy();
-      statisticsComponent = new StatisticsPageView(filmsModel);
-      render(siteMainElement, statisticsComponent, RenderPosition.BEFOREEND);
+      statisticPresenter.init();
+      /* statisticsComponent = new StatisticsPageView(filmsModel);
+      render(siteMainElement, statisticsComponent, RenderPosition.BEFOREEND); */
 
       // Показать статистику
       break;
@@ -85,10 +107,12 @@ render(footerStatisticsElement, statisticsView.element, RenderPosition.BEFOREEND
 siteMenuComponent.siteMenuClickHandler(handleSiteMenuClick);
 
 const handleFilterModelEvent = (updateType, filter) => {
-  console.log('handleFilterModelEvent', { updateType, filter });
+  console.log('handleFilterModelEvent', {
+    updateType,
+    filter
+  });
   handleSiteMenuClick(filter);
 };
 
 
 filterModel.addObserver(handleFilterModelEvent);
-
