@@ -4,12 +4,13 @@ dayjs.extend(duration);
 import {
   getRandomInteger
 } from '../utils/common.js';
+import { BACKEND_DATE_FORMAT } from './const.js';
 
 const MAX_DAYS_GAP = 7;
 
 export const generateDate = () => {
   const daysGap = getRandomInteger(-MAX_DAYS_GAP, MAX_DAYS_GAP);
-  return dayjs().add(daysGap, 'days').toDate();
+  return dayjs().add(daysGap, 'days').format(BACKEND_DATE_FORMAT);
 };
 
 //для продолжительности в часах и минутах

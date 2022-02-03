@@ -37,6 +37,10 @@ export const createElement = (template) =>{
   return newElement.firstChild;//получили готовый дом элемент и вернули первый дочерний элемент (без нашей обертки)
 };
 
+/**
+ * @param {AbstractView|HTMLElement} newElement
+ * @param {AbstractView|HTMLElement} oldElement
+ */
 export const replace = (newElement, oldElement) => {
   if(newElement === null || oldElement === null) {
     throw new Error('Can\'t replace unexisting elements');
@@ -54,6 +58,9 @@ export const replace = (newElement, oldElement) => {
   parent.replaceChild(newChild, oldChild);
 };
 
+/**
+ * @param {AbstractView} component
+ */
 export const remove = (component) => {
   if (component === null) {
     return;

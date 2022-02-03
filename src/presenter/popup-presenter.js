@@ -6,7 +6,8 @@ import utc from 'dayjs/plugin/utc';
 dayjs.extend(utc);
 import { FilmComment, getRandomAuthor } from '../mock/comments.js';
 import { isEscapeKey } from '../utils/common.js';
-import { UpdateType, UserAction } from '../utils/const.js';
+import { BACKEND_DATE_FORMAT, UpdateType, UserAction } from '../utils/const.js';
+
 
 
 export default class PopupFilmPresenter {
@@ -71,7 +72,7 @@ export default class PopupFilmPresenter {
       UpdateType.PATCH,
       {...this.#film,
         isWatched: !this.#film.isWatched,
-        watchingDate: !this.#film.isWatched ? null : dayjs.utc().format('YYYY-MM-DDTHH:mm:SSSZ')}
+        watchingDate: !this.#film.isWatched ? null : dayjs.utc().format(BACKEND_DATE_FORMAT)}
     );
   }
 
@@ -106,7 +107,7 @@ export default class PopupFilmPresenter {
       id: nanoid(),
       author: getRandomAuthor(),
       comment,
-      date: dayjs.utc().format('YYYY-MM-DDTHH:mm:ss.SSS[Z]'),
+      date: dayjs.utc().format(BACKEND_DATE_FORMAT),
       emotion
     });
 

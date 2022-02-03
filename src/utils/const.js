@@ -6,11 +6,11 @@ export const FilterType = {
 };
 
 export const PeriodType  = {
-  ALL_TIME: 'All time',
-  TODAY: 'Today',
-  WEEK: 'Week',
-  MONTH: 'Month',
-  YEAR: 'Year'
+  ALL_TIME: 'all-time',
+  TODAY: 'today',
+  WEEK: 'week',
+  MONTH: 'month',
+  YEAR: 'year'
 };
 
 export const UserAction = {
@@ -21,7 +21,6 @@ export const UserAction = {
 
 //patch - добавление/удаелние комментариев
 //minor - добавление/удаление фильма в избранное и др.
-//major - переключение фильтров
 export const UpdateType = {
   PATCH: 'PATCH',
   MINOR: 'MINOR',
@@ -31,6 +30,8 @@ export const UpdateType = {
 export const FILM_COUNT_PER_STEP = 5;
 
 export const FILM_CARD_COUNT = 20;
+
+export const BACKEND_DATE_FORMAT = 'YYYY-MM-DDTHH:mm:ss.SSS[Z]';
 
 export const SortType = {
   DEFAULT: 'default',
@@ -53,10 +54,10 @@ export const MenuItem = {
   STATS: 'Stats'
 };
 
-export const StatisticFilter = {
-  TODAY: 'today',
-  WEEK: 'week',
-  MONTH: 'month',
-  YEAR: 'year',
-  ALL_TIME: 'all-time',
-};
+// export const StatisticFilter = {
+//   TODAY: 'today',
+//   WEEK: 'week',
+//   MONTH: 'month',
+//   YEAR: 'year',
+//   ALL_TIME: 'all-time',
+// };

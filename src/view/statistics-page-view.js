@@ -3,7 +3,8 @@ import Chart from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import {runtimeToDuration} from '../utils/film.js';
 import {filter} from '../utils/filter.js';
-import {FilterType} from '../utils/const.js';
+import {FilterType, PeriodType} from '../utils/const.js';
+import { getUserRank } from '../utils/user.js';
 
 const getGenresStat = (films) => {
   const genreCount = films
@@ -17,16 +18,41 @@ const getGenresStat = (films) => {
 
   const sortedGenreCount = Object.entries(genreCount).sort((genreA, genreB) => genreB[1] - genreA[1]);
 
-  console.log(sortedGenreCount);
+  console.group('StatisticsPageView: getGenresStat');
+  console.log({ sortedGenreCount });
+  console.log({ films });
+  console.groupEnd();
   return sortedGenreCount;
 };
 
 
+/**
+ * @returns {String} топовый жанр
+ */
 const getTopGenre = (films) => {
-  return getGenresStat(films).shift().shift();
-/*   const genreCount = getGenresStat(films);
+  console.group('StatisticsPageView: getTopGenre');
+  console.log({ films });
+
+  if (!films) {
+    console.groupEnd();
+    return '';
+  }
+
+  if (!films.length) {
+    console.groupEnd();
+    return '';
+  }
+
+  const topGenre = getGenresStat(films)[0][0];
+  console.log({ topGenre });
+  console.groupEnd();
+
+  return topGenre;
+  /*
+  const genreCount = getGenresStat(films);
   return Object.keys(genreCount)
-    .reduce((genereA, genereB) => genreCount[genereA] > genreCount[genereB] ? genereA : genereB); */
+    .reduce((genereA, genereB) => genreCount[genereA] > genreCount[genereB] ? genereA : genereB);
+  */
 };
 
 const createStatisticsRankTemplate = ({
@@ -53,6 +79,7 @@ const createStatisticsFilterItemTemplate = (filter, currentFilterType) => {
 };
 
 const createStatisticsFiltersTemplate = (filters, currentFilterType) => {
+  // @todo: upper scope filter variable
   const filterItemsTemplate = filters.map((filter) => createStatisticsFilterItemTemplate(filter, currentFilterType)).join('');
   return (
     `<form action="https://echo.htmlacademy.ru/" method="get" class="statistic__filters">
@@ -88,56 +115,79 @@ const createStatisticsTemplate = (user, filters, currentFilter, watchedFilmsCoun
 export default class StatisticsPageView extends AbstractView {
   #filters = null;
   #currentFilter = null;
-  #filmsModel = null;
+  #allWatchedFilms = null;
+  #byPeriodWatchedFilms = null;
 
-  constructor(filmsModel) {
+  /**
+   * @params {Array} allWatchedFilms
+   * @params {Array} byPeriodWatchedFilms
+   * @params {String} currentFilter
+   * @constructor
+   */
+  constructor(allWatchedFilms, byPeriodWatchedFilms, currentFilter) {
     super();
-    console.log(filmsModel);
+    // console.group('StatisticsPageView: constructor');
+    // console.table(films);
+    // console.groupEnd();
 
-    this.#filmsModel = filmsModel;
+
+    this.#currentFilter = currentFilter;
+
+    this.#allWatchedFilms = allWatchedFilms;
+    this.#byPeriodWatchedFilms = byPeriodWatchedFilms;
     this.#filters = [
       {
-        type: 'all-time',
+        type: PeriodType.ALL_TIME,
         name: 'All time',
       },
       {
-        type: 'today',
+        type: PeriodType.TODAY,
         name: 'Today',
       },
       {
-        type: 'week',
+        type: PeriodType.WEEK,
         name: 'Week',
       },
       {
-        type: 'month',
+        type: PeriodType.MONTH,
         name: 'Month',
       },
       {
-        type: 'year',
+        type: PeriodType.YEAR,
         name: 'Year',
       },
     ];
 
-    this.#currentFilter = 'week';
     this.#setCharts();
   }
 
   get template() {
     const user = {
       avatar: 'images/bitmap@2x.png',
-      rank: 'Movie buff'
+      rank: getUserRank(this.#allWatchedFilms.length)
     };
 
-    const watchedFilms = filter[FilterType.HISTORY](this.#filmsModel.films);
-    const watchedFilmsCount = watchedFilms.length;
-    const totalDuration = runtimeToDuration(watchedFilms.reduce((totalMinutes, film) => (totalMinutes + film.duration), 0));
+    const watchedFilmsCount = this.#byPeriodWatchedFilms.length;
+    const totalDuration = runtimeToDuration(this.#byPeriodWatchedFilms.reduce((totalMinutes, film) => (totalMinutes + film.duration), 0));
 
-    const topGenre = getTopGenre(watchedFilms);
+    const topGenre = getTopGenre(this.#byPeriodWatchedFilms);
     return createStatisticsTemplate(user, this.#filters, this.#currentFilter, watchedFilmsCount, totalDuration, topGenre);
   }
 
+  setFilterChangeHandler = (callback) => {
+    this._callback.filterChange = callback;
+    this.element.querySelectorAll('.statistic__filters-input').forEach((element) => {
+      element.addEventListener('change', this.#filterChangeHandler);
+    });
+  }
+
+  #filterChangeHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.filterChange(evt.target.value);
+  }
+
   #setCharts = () => {
-    const films = this.#filmsModel.films;
+    const films = this.#byPeriodWatchedFilms;
     const genresStat = getGenresStat(films);
     const genres = genresStat.map((genre) => genre[0]);
     const genresCounts = genresStat.map((genre) => genre[1]);

@@ -4,6 +4,7 @@ import { generateDate } from '../utils/film.js';
 import { nanoid } from 'nanoid';
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
+import { BACKEND_DATE_FORMAT } from '../utils/const.js';
 
 dayjs.extend(duration);
 
@@ -32,7 +33,7 @@ const generateFilmCommentsIds = () => {
 
 const generateFilmWatchingDate = () => {
   const daysGap = getRandomInteger(-365, 0);
-  return dayjs().add(daysGap, 'days').format('YYYY-MM-DDTHH:mm:SSSZ');
+  return dayjs().add(daysGap, 'days').format(BACKEND_DATE_FORMAT);
 };
 
 export const generateCardFilm = () => {
