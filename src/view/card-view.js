@@ -10,7 +10,6 @@ const createCardFilmTemplate = (films) => {
     duration,
     genre,
     description,
-    // countComment,
     isWatchlist,
     isWatched,
     isFavorites,

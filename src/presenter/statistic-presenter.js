@@ -1,5 +1,5 @@
-import { FilterType, PeriodType, StatisticFilter } from '../utils/const.js';
-import { filter } from '../utils/filter.js';
+import {FilterType, PeriodType} from '../utils/const.js';
+import {filter} from '../utils/filter.js';
 import {render, RenderPosition, remove, replace} from '../utils/render.js';
 import StatisticsPageView from '../view/statistics-page-view.js';
 
@@ -86,7 +86,6 @@ export default class StaticticPresenter  {
   }
 
   #handleFilterTypeChange = (value) => {
-    console.log(value);
     this.#filterType = value;
     this.#updateView();
   }

@@ -44,10 +44,8 @@ export const generateCardFilm = () => {
     filmName: generateRandomElement(NAME_FILM),
     rating: `${getRandomInteger(1, 9)}.${getRandomInteger(0, 9)}`,
     duration: getRandomInteger(30, 110), //« 1 h 36 m»
-    //genre: generateRandomElement(GENRE_FILM),
     genre: randomArrayValues(GENRE_FILM),
     description: generateRandomElement(DESCRIPTION_FILM_SHORT),
-    // countComment: getRandomInteger(0, 100),
     originalName: generateRandomElement(NAME_FILM),
     director:generateRandomElement(DIRECTOR_FILM),
     screenwriters: randomArrayValues(SCREENWRITERS_FILM),

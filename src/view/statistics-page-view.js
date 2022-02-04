@@ -2,9 +2,8 @@ import AbstractView from './abstract-view.js';
 import Chart from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import {runtimeToDuration} from '../utils/film.js';
-import {filter} from '../utils/filter.js';
-import {FilterType, PeriodType} from '../utils/const.js';
-import { getUserRank } from '../utils/user.js';
+import {PeriodType} from '../utils/const.js';
+import {getUserRank} from '../utils/user.js';
 
 const getGenresStat = (films) => {
   const genreCount = films
@@ -17,11 +16,6 @@ const getGenresStat = (films) => {
     }), {});
 
   const sortedGenreCount = Object.entries(genreCount).sort((genreA, genreB) => genreB[1] - genreA[1]);
-
-  console.group('StatisticsPageView: getGenresStat');
-  console.log({ sortedGenreCount });
-  console.log({ films });
-  console.groupEnd();
   return sortedGenreCount;
 };
 
@@ -30,29 +24,16 @@ const getGenresStat = (films) => {
  * @returns {String} топовый жанр
  */
 const getTopGenre = (films) => {
-  console.group('StatisticsPageView: getTopGenre');
-  console.log({ films });
-
   if (!films) {
-    console.groupEnd();
     return '';
   }
 
   if (!films.length) {
-    console.groupEnd();
     return '';
   }
 
   const topGenre = getGenresStat(films)[0][0];
-  console.log({ topGenre });
-  console.groupEnd();
-
   return topGenre;
-  /*
-  const genreCount = getGenresStat(films);
-  return Object.keys(genreCount)
-    .reduce((genereA, genereB) => genreCount[genereA] > genreCount[genereB] ? genereA : genereB);
-  */
 };
 
 const createStatisticsRankTemplate = ({
@@ -126,13 +107,7 @@ export default class StatisticsPageView extends AbstractView {
    */
   constructor(allWatchedFilms, byPeriodWatchedFilms, currentFilter) {
     super();
-    // console.group('StatisticsPageView: constructor');
-    // console.table(films);
-    // console.groupEnd();
-
-
     this.#currentFilter = currentFilter;
-
     this.#allWatchedFilms = allWatchedFilms;
     this.#byPeriodWatchedFilms = byPeriodWatchedFilms;
     this.#filters = [
@@ -194,10 +169,9 @@ export default class StatisticsPageView extends AbstractView {
     const BAR_HEIGHT = 50;
     const statisticCtx = this.element.querySelector('.statistic__chart');
 
-    // Обязательно рассчитайте высоту canvas, она зависит от количества элементов диаграммы
     statisticCtx.height = BAR_HEIGHT * genres.length;
 
-    const myChart = new Chart(statisticCtx, {
+    new Chart(statisticCtx, {
       plugins: [ChartDataLabels],
       type: 'horizontalBar',
       data: {

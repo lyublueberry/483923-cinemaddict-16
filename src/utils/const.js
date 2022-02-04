@@ -19,8 +19,6 @@ export const UserAction = {
   UPDATE_FILM: 'UPDATE_FILM',
 };
 
-//patch - добавление/удаелние комментариев
-//minor - добавление/удаление фильма в избранное и др.
 export const UpdateType = {
   PATCH: 'PATCH',
   MINOR: 'MINOR',
@@ -53,11 +51,3 @@ export const MenuItem = {
   FAVORITES: 'Favorites',
   STATS: 'Stats'
 };
-
-// export const StatisticFilter = {
-//   TODAY: 'today',
-//   WEEK: 'week',
-//   MONTH: 'month',
-//   YEAR: 'year',
-//   ALL_TIME: 'all-time',
-// };

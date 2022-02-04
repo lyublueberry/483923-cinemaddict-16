@@ -40,7 +40,6 @@ export default class MoviePresenter {
 
   //удалить компоненты
   destroy = () => {
-    console.log('destroy movie compnent');
     remove(this.#filmComponent);
   };
 

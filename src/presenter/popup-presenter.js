@@ -9,21 +9,17 @@ import { isEscapeKey } from '../utils/common.js';
 import { BACKEND_DATE_FORMAT, UpdateType, UserAction } from '../utils/const.js';
 
 
-
 export default class PopupFilmPresenter {
   #popupCloseHandler = null;
   #film = null;
   #filmPopupComponent = null;
   #changeData = null;
   #handleFilmChange = null;
-  // #handleCommentChange = null;
   #comments = null;
 
   constructor(changeData, popupCloseHandler) {
     this.#popupCloseHandler = popupCloseHandler;
-    /* this.#film = film; */
     this.#changeData = changeData;
-    //this.#handleCommentChange = handleCommentChange;
   }
 
   init = (film, comments) => {
