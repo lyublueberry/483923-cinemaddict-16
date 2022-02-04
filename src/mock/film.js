@@ -1,7 +1,12 @@
 import { generateRandomElement, getRandomInteger, generateRandomBoolean, randomArrayValues } from '../utils/common.js';
-import { generateCommentFilm } from '../mock/comments.js';
+
 import { generateDate } from '../utils/film.js';
 import { nanoid } from 'nanoid';
+import dayjs from 'dayjs';
+import duration from 'dayjs/plugin/duration';
+import { BACKEND_DATE_FORMAT } from '../utils/const.js';
+
+dayjs.extend(duration);
 
 const POSTER_PICTURES_FILM = ['./images/posters/made-for-each-other.png', './images/posters/popeye-meets-sinbad.png',
   './images/posters/sagebrush-trail.jpg', './images/posters/the-man-with-the-golden-arm.jpg',
@@ -19,27 +24,42 @@ const SCREENWRITERS_FILM= ['Эрик Рот', 'Уинстон Грум', 'Фрэ
 const ACTORS_FILM = ['Том Хэнкс', 'Робин Райт', 'Салли Филд'];
 const COUNTRY = ['Russia', 'USA', 'Spain'];
 
-export const generateCardFilm = () => ({
-  id: nanoid(),
-  poster: generateRandomElement(POSTER_PICTURES_FILM),
-  filmName: generateRandomElement(NAME_FILM),
-  rating: `${getRandomInteger(1, 9)}.${getRandomInteger(0, 9)}`,
-  duration: getRandomInteger(30, 110), //« 1 h 36 m»
-  genre: generateRandomElement(GENRE_FILM),
-  genres: randomArrayValues(GENRE_FILM),
-  description: generateRandomElement(DESCRIPTION_FILM_SHORT),
-  countComment: getRandomInteger(0, 100),
-  originalName: generateRandomElement(NAME_FILM),
-  director:generateRandomElement(DIRECTOR_FILM),
-  screenwriters: randomArrayValues(SCREENWRITERS_FILM),
-  actors: randomArrayValues(ACTORS_FILM),
-  releaseDate: generateDate(),
-  country:generateRandomElement(COUNTRY),
-  ageRating:getRandomInteger(0, 18),
-  isWatchlist: generateRandomBoolean(),
-  isWatched: generateRandomBoolean(),
-  isFavorites: generateRandomBoolean(),
-  comments: Array.from({length:getRandomInteger(1, 5)}, generateCommentFilm)
-});
+const MIN_COMMENTS_COUNT = 0;
+const MAX_COMMENTS_COUNT = 5;
+const generateFilmCommentsIds = () => {
+  const commentsCount = getRandomInteger(MIN_COMMENTS_COUNT, MAX_COMMENTS_COUNT);
+  return Array.from({ length: commentsCount }, () => nanoid());
+};
+
+const generateFilmWatchingDate = () => {
+  const daysGap = getRandomInteger(-365, 0);
+  return dayjs().add(daysGap, 'days').format(BACKEND_DATE_FORMAT);
+};
+
+export const generateCardFilm = () => {
+  const isWatched = generateRandomBoolean();
+  const filmCard = {
+    id: nanoid(),
+    poster: generateRandomElement(POSTER_PICTURES_FILM),
+    filmName: generateRandomElement(NAME_FILM),
+    rating: `${getRandomInteger(1, 9)}.${getRandomInteger(0, 9)}`,
+    duration: getRandomInteger(30, 110), //« 1 h 36 m»
+    genre: randomArrayValues(GENRE_FILM),
+    description: generateRandomElement(DESCRIPTION_FILM_SHORT),
+    originalName: generateRandomElement(NAME_FILM),
+    director:generateRandomElement(DIRECTOR_FILM),
+    screenwriters: randomArrayValues(SCREENWRITERS_FILM),
+    actors: randomArrayValues(ACTORS_FILM),
+    releaseDate: generateDate(),
+    country:generateRandomElement(COUNTRY),
+    ageRating:getRandomInteger(0, 18),
+    isWatchlist: generateRandomBoolean(),
+    isWatched: isWatched,
+    isFavorites: generateRandomBoolean(),
+    comments: generateFilmCommentsIds(),
+    watchingDate: isWatched ? generateFilmWatchingDate() : null,
+  };
+  return filmCard;
+};
 
 export {POSTER_PICTURES_FILM, NAME_FILM, GENRE_FILM, DESCRIPTION_FILM_SHORT};

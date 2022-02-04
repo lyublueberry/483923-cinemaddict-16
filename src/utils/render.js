@@ -27,6 +27,9 @@ export const render = (container, element, place) => {
   }
 };
 
+/**
+ * @returns {HTMLDivElement}
+ */
 export const createElement = (template) =>{
   const newElement = document.createElement('div');//создали обертку
   newElement.innerHTML = template;//добавили туда разметку
@@ -34,6 +37,10 @@ export const createElement = (template) =>{
   return newElement.firstChild;//получили готовый дом элемент и вернули первый дочерний элемент (без нашей обертки)
 };
 
+/**
+ * @param {AbstractView|HTMLElement} newElement
+ * @param {AbstractView|HTMLElement} oldElement
+ */
 export const replace = (newElement, oldElement) => {
   if(newElement === null || oldElement === null) {
     throw new Error('Can\'t replace unexisting elements');
@@ -51,6 +58,9 @@ export const replace = (newElement, oldElement) => {
   parent.replaceChild(newChild, oldChild);
 };
 
+/**
+ * @param {AbstractView} component
+ */
 export const remove = (component) => {
   if (component === null) {
     return;
@@ -62,18 +72,4 @@ export const remove = (component) => {
 
   component.element.remove();
   component.removeElement();
-};
-
-export const updateItem = (items, update) => {
-  const index = items.findIndex((item) => item.id === update.id);
-
-  if (index === -1) {
-    return items;
-  }
-
-  return [
-    ...items.slice(0, index),
-    update,
-    ...items.slice(index + 1),
-  ];
 };

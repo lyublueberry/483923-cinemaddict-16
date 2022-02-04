@@ -1,128 +1,165 @@
 //presenter для всей отрисовки доски фильмов
 import MessageFilmsListEmptyView from '../view/no-films-view.js';
 import ContainerCardsView from '../view/container-card-view.js';
-import BtnShowMoreView from '../view/btn-show-more.js';
-import {render, RenderPosition, remove, updateItem} from '../utils/render.js';
-import FilterView from '../view/site-menu-view.js';
 import SortMenuView from '../view/sort-view.js';
 import ContainerFilmsView from '../view/container-films-view.js';
-import {sortFilmsByDate, sortFilmsByRating} from '../utils/film.js';
-import {SortType} from '../view/sort-view.js';
+import BtnShowMoreView from '../view/btn-show-more.js';
 
-import PopupFilmView from '../view/film-details-popup-view.js';
-
+import PopupFilmPresenter from './popup-presenter.js';
 import MoviePresenter from './movie-presenter.js';
 
-const FILM_COUNT_PER_STEP = 5;
+import {render, RenderPosition, remove} from '../utils/render.js';
+import {sortFilmsByDate, sortFilmsByRating} from '../utils/film.js';
+import {FILM_COUNT_PER_STEP, UpdateType, UserAction, FilterType, SortType } from '../utils/const.js';
+import {filter} from '../utils/filter.js';
 
-const KEYDOWN = 'keydown';
-const ESCAPE = 'Escape';
-const ESC = 'Esc';
+
+const Mode = {
+  OPEN: 'OPEN',
+  CLOSE: 'CLOSE'
+};
+
 export default class MovieListPresenter  {
   #siteMainElement = null;
-
+  #filmsModel = null;
+  #commentsModel = null;
+  #filterModel = null;
   #filmPopupComponent = null;
+  #popupPresenter = null;
+  #noFilmComponent = null;
+  #mode = Mode.CLOSE;
+
   #sortMenuFilm = new SortMenuView();
-  #noFilmComponent = new MessageFilmsListEmptyView();
   #filmsListContainer  = new ContainerCardsView();//куда поместим все карточки
-  #loadMoreButtonComponent  = new BtnShowMoreView();
+  #loadMoreButtonComponent = new BtnShowMoreView();
   #generalContainerFilms = new ContainerFilmsView();
 
-  #listFilms = []; //фильмы
-  #filters = [];
+
   #renderedFilmCount = FILM_COUNT_PER_STEP;
   #filmPresenter = new Map();
-
+  #filterType = FilterType.ALL;
   #currentSortType = SortType.DEFAULT;
-  #sourcedListFilms = [];
 
   //здесь передаем куда этот контейнер надо встроить
-  constructor(siteMainElement) {
+  constructor(siteMainElement, filmsModel, commentsModel, filterModel) {
     this.#siteMainElement = siteMainElement;
+    this.#filmsModel = filmsModel;
+    this.#commentsModel = commentsModel;
+    this.#filterModel = filterModel;
+
+    this.#popupPresenter = new PopupFilmPresenter(
+      this.#handleViewAction,
+      this.#handleClosePopup
+    );
+  }
+
+  get films() {
+    this.#filterType = this.#filterModel.filter;
+    const films = this.#filmsModel.films;
+    const filteredFilms = filter[this.#filterType](films);
+
+    switch (this.#currentSortType) {
+      case SortType.BY_DATE:
+        return filteredFilms.sort(sortFilmsByDate);
+      case SortType.BY_RATING:
+        return filteredFilms.sort(sortFilmsByRating);
+    }
+    return filteredFilms;
   }
 
   //метод инициализации - начала работы модуля
-  init = (listFilms, filters) => {
-    this.#listFilms = [...listFilms];
-    this.#filters = [...filters];
-
-    this.#sourcedListFilms = [...listFilms];
-
+  init = () => {
+    this.#currentSortType = SortType.DEFAULT;
+    this.#filmsModel.addObserver(this.#handleModelEvent);
+    this.#filterModel.addObserver(this.#handleModelEvent);
     render(this.#siteMainElement, this.#generalContainerFilms, RenderPosition.BEFOREEND);
+    this.#clearFilmList();
     this.#renderBoard();
-    render(this.#siteMainElement, new FilterView(filters), RenderPosition.AFTERBEGIN); //меню
+  }
+
+  destroy = () => {
+    this.#clearFilmList();
+    remove(this.#sortMenuFilm);
+    remove(this.#filmsListContainer);
+    remove(this.#generalContainerFilms);
+    this.#filmsModel.removeObserver(this.#handleModelEvent);
+    this.#filterModel.removeObserver(this.#handleModelEvent);
+  }
+
+  #handleViewAction = (actionType, updateType, update) => {
+    // Здесь будем вызывать обновление модели.
+    // actionType - действие пользователя, нужно чтобы понять, какой метод модели вызвать
+    // updateType - тип изменений, нужно чтобы понять, что после нужно обновить
+    // update - обновленные данные
+    switch (actionType) {
+      case UserAction.UPDATE_FILM:
+        this.#filmsModel.updateFilm(updateType, update);
+        break;
+      case UserAction.DELETE_COMMENT:
+        this.#commentsModel.deleteComment(updateType, update);
+        break;
+      case UserAction.ADD_COMMENT:
+        this.#commentsModel.addComment(updateType, update);
+        break;
+    }
+  }
+
+  #getFilmComments = (film) => this.#commentsModel.comments.filter((comment) => film.comments.includes(comment.id));
+
+  #handleModelEvent = (updateType, data) => {
+    // В зависимости от типа изменений решаем, что делать:
+    // - обновить часть списка (например, когда поменялось описание)
+    // - обновить список (например, когда задача ушла в архив)
+    // - обновить всю доску (например, при переключении фильтра)
+
+    switch (updateType) {
+      case UpdateType.PATCH:
+        // - обновить часть списка (например, когда поменялось описание)
+        this.#filmPresenter.get(data.id).init(data);
+        this.#renderPopup(data);
+        break;
+      case UpdateType.MINOR: {
+        this.#clearFilmList();
+        this.#renderFilmsList();
+        this.#renderedFilmCount = FILM_COUNT_PER_STEP;
+        break;
+      }
+      case UpdateType.MAJOR:
+        // - обновить всю доску (например, при переключении фильтра)
+        this.#clearFilmList();
+        this.#renderFilmsList();
+        this.#renderedFilmCount = FILM_COUNT_PER_STEP;
+        break;
+    }
   }
 
   //получает ссылку на контейнер куда отрисовываем и данные о фильме
   #renderFilm = (film) => {
-    const moviePresenter = new MoviePresenter(this.#filmsListContainer, this.#handleFilmChange, this.#handleOpenPopup);
+    const moviePresenter = new MoviePresenter(this.#filmsListContainer, this.#handleViewAction, this.#handleOpenPopup);
     moviePresenter.init(film);
     this.#filmPresenter.set(film.id, moviePresenter);
   }
 
   #renderPopup = (film) => {
-    let scrollTop;
-    if(this.#filmPopupComponent) {
-      scrollTop = this.#filmPopupComponent.element.scrollTop;
-      this.#replaceClosePopup();
+    //Презентер
+    if(this.#mode === Mode.OPEN) {
+      this.#popupPresenter.init(film, this.#getFilmComments(film));
     }
-    this.#filmPopupComponent = new PopupFilmView(film);
-    this.#filmPopupComponent.setClosePopupHandler(this.#handleClosePopup);
-    document.body.classList.add('hide-overflow');
-    document.body.appendChild(this.#filmPopupComponent.element);
-    document.addEventListener(KEYDOWN, this.#escKeyDownHandler);
-    this.#filmPopupComponent.setWatchlistClickHandler(this.#watchlistClickHandler);
-    this.#filmPopupComponent.setWatchedClickHandler(this.#watchedClickHandler);
-    this.#filmPopupComponent.setFavoriteClickHandler(this.#favoriteClickHandler);
-    this.#filmPopupComponent.element.scrollTop = scrollTop;
-  }
 
-  #watchlistClickHandler = (film) => {
-    const updateFilm = {...film, isWatchlist: !film.isWatchlist};
-    this.#handleFilmChange(updateFilm);
-    this.#renderPopup(updateFilm);
-  }
-
-  #watchedClickHandler = (film) => {
-    const updateFilm = {...film, isWatched: !film.isWatched};
-    this.#handleFilmChange(updateFilm);
-    this.#renderPopup(updateFilm);
-  }
-
-  #favoriteClickHandler = (film) => {
-    const updateFilm = {...film, isFavorites: !film.isFavorites};
-    this.#handleFilmChange(updateFilm);
-    this.#renderPopup(updateFilm);
   }
 
   #handleOpenPopup = (film) => {
-    if(this.#filmPopupComponent){
-      this.#replaceClosePopup();
-    }
+    this.#mode= Mode.OPEN;
     this.#renderPopup(film);
   };
 
-  #escKeyDownHandler = (evt) => {
-    if(evt.key === ESCAPE || evt.key === ESC) {
-      evt.preventDefault();
-      this.#replaceClosePopup();
-      document.removeEventListener(KEYDOWN, this.#escKeyDownHandler);
-    }
-  };
-
-  #replaceClosePopup = () => {
-    document.body.classList.remove('hide-overflow');
-    remove(this.#filmPopupComponent);
-    document.removeEventListener(KEYDOWN, this.#escKeyDownHandler);
-    this.#filmPopupComponent = null;
-  };
-
   #handleClosePopup = () => {
-    this.#replaceClosePopup();
-  };
+    this.#mode = Mode.CLOSE;
+  }
 
-  #renderFilms = (from, to) => {
-    this.#listFilms.slice(from, to).forEach((film) => this.#renderFilm(film));
+
+  #renderFilms = (films) => {
+    films.forEach((film) => this.#renderFilm(film));
   }
 
   #clearFilmList = () => {
@@ -130,57 +167,39 @@ export default class MovieListPresenter  {
     this.#filmPresenter.clear();
     this.#renderedFilmCount = FILM_COUNT_PER_STEP;
     remove(this.#loadMoreButtonComponent);
+    this.#handleClosePopup();
   }
 
   #renderNoFilms = () => {
+    this.#noFilmComponent = new MessageFilmsListEmptyView(this.#filterType);
     render(this.#filmsListContainer, this.#noFilmComponent, RenderPosition.BEFOREEND);
   }
 
-  #loadMoreButtonClickHandler = () => {
-    this.#listFilms.slice(this.#renderedFilmCount, this.#renderedFilmCount + FILM_COUNT_PER_STEP)
-      .forEach((film) => this.#renderFilm(film));
-    this.#renderedFilmCount += FILM_COUNT_PER_STEP;
+  #handleLoadMoreButtonClick  = () => {
+    const filmCount = this.films.length;
+    const newRenderedFilmCount = Math.min(filmCount, this.#renderedFilmCount + FILM_COUNT_PER_STEP);
+    const films = this.films.slice(this.#renderedFilmCount, newRenderedFilmCount);
+    this.#renderFilms(films);
+    this.#renderedFilmCount = newRenderedFilmCount;
 
-    if (this.#renderedFilmCount >= this.#listFilms.length) {
+    if (this.#renderedFilmCount >= filmCount) {
       remove(this.#loadMoreButtonComponent);
     }
   }
 
   //обработчик изменений
   #handleFilmChange = (updateFilm) => {
-    this.#listFilms = updateItem(this.#listFilms, updateFilm);
-    this.#sourcedListFilms = updateItem(this.#sourcedListFilms, updateFilm);
     this.#filmPresenter.get(updateFilm.id).init(updateFilm);
-  }
-
-  #sortFilms = (sortType) => {
-    // 2. Этот исходный массив необходим,
-    // потому что для сортировки мы будем мутировать
-    // массив в свойстве listFilms
-    switch (sortType) {
-      case SortType.BY_DATE:
-        this.#listFilms.sort(sortFilmsByDate);
-        break;
-      case SortType.BY_RATING:
-        this.#listFilms.sort(sortFilmsByRating);
-        break;
-      default:
-        // 3. А когда пользователь захочет "вернуть всё, как было",
-        // мы просто запишем в listFilms исходный массив
-        this.#listFilms = [...this.#sourcedListFilms];
-    }
-
-    this.#currentSortType = sortType;
   }
 
   #renderShowMoreButton = () => {
     render(this.#filmsListContainer, this.#loadMoreButtonComponent, RenderPosition.BEFOREEND);
-    this.#loadMoreButtonComponent.setClickHandler(this.#loadMoreButtonClickHandler);
+    this.#loadMoreButtonComponent.setClickHandler(this.#handleLoadMoreButtonClick);
   }
 
   #renderSortMenuFilm = () => {
-    render(this.#siteMainElement, this.#sortMenuFilm, RenderPosition.AFTERBEGIN); //сортировка
     this.#sortMenuFilm.setSortTypeChangeHandler(this.#handleSortTypeChange);
+    render(this.#siteMainElement, this.#sortMenuFilm, RenderPosition.AFTERBEGIN); //сортировка
   }
 
   #handleSortTypeChange = (sortType) => {
@@ -189,7 +208,7 @@ export default class MovieListPresenter  {
       return;
     }
 
-    this.#sortFilms(sortType);
+    this.#currentSortType = sortType;
     // - Очищаем список
     // - Рендерим список заново
     this.#clearFilmList();
@@ -198,18 +217,20 @@ export default class MovieListPresenter  {
 
   #renderFilmsList = () => {
     render(this.#generalContainerFilms, this.#filmsListContainer, RenderPosition.BEFOREEND);
-    this.#renderFilms(0, Math.min(this.#listFilms.length, FILM_COUNT_PER_STEP));
-    if (this.#listFilms.length > FILM_COUNT_PER_STEP) {
+    const filmCount = this.films.length;
+    const films = this.films.slice(0, Math.min(filmCount, FILM_COUNT_PER_STEP));
+    this.#renderFilms(films);
+    if (filmCount > this.#renderedFilmCount) {
       this.#renderShowMoreButton();
     }
   }
 
   #renderBoard = () => {
-    if (this.#listFilms.length === 0) {
+    if (this.films.length === 0) {
       this.#renderNoFilms();
-    } else {
-      this.#renderSortMenuFilm();
+      return;
     }
+    this.#renderSortMenuFilm();
     this.#renderFilmsList();
   }
 }

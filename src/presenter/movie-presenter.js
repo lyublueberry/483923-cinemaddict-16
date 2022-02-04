@@ -1,5 +1,9 @@
 import CardFilmView from '../view/card-view.js';
 import { remove, render, RenderPosition, replace } from '../utils/render.js';
+import { BACKEND_DATE_FORMAT, UpdateType, UserAction } from '../utils/const.js';
+import dayjs from 'dayjs';
+import duration from 'dayjs/plugin/duration';
+dayjs.extend(duration);
 
 export default class MoviePresenter {
   #filmListContainer = null;
@@ -40,14 +44,18 @@ export default class MoviePresenter {
   };
 
   #handleWatchlist = () => {
-    this.#changeData({...this.#film, isWatchlist: !this.#film.isWatchlist});
+    this.#changeData(UserAction.UPDATE_FILM, UpdateType.PATCH, {...this.#film, isWatchlist: !this.#film.isWatchlist});
   }
 
   #handleWatched = () => {
-    this.#changeData({...this.#film, isWatched: !this.#film.isWatched});
+    this.#changeData(UserAction.UPDATE_FILM, UpdateType.PATCH, {
+      ...this.#film,
+      isWatched: !this.#film.isWatched,
+      watchingDate: !this.#film.isWatched ? dayjs.utc().format(BACKEND_DATE_FORMAT) : null
+    });
   }
 
   #handleFavorite = () => {
-    this.#changeData({...this.#film, isFavorites: !this.#film.isFavorites});
+    this.#changeData(UserAction.UPDATE_FILM, UpdateType.PATCH, {...this.#film, isFavorites: !this.#film.isFavorites});
   }
 }

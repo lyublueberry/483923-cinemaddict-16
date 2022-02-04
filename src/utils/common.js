@@ -25,3 +25,8 @@ export const randomArrayValues = function (arrayElements){
   arrayElements.splice(0, getRandomInteger(0, arrayElements.length - 1));
   return arrayElements;
 };
+
+
+export const isFormSubmtShortcut = (evt) => evt.key === 'Enter' && (evt.metaKey || evt.ctrlKey);
+export const isEscapeKey = (evt) => evt.key === 'Escape' || evt.key === 'Esc';
+

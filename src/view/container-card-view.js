@@ -16,7 +16,3 @@ export default class ContainerCardsView extends AbstractView {
     return this.#container;
   }
 }
-
-
-//конструктор который принимает список фильмов
-//если фильмы есть то возвращаю карточки если нет то h2 - нет фильмов в бд
